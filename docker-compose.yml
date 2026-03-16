@@ -10,11 +10,11 @@ services:
       POSTGRES_USER: pec_admin
       POSTGRES_PASSWORD: pec_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pec_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pec_admin -d pec_db"]
+      test: [ "CMD-SHELL", "pg_isready -U pec_admin -d pec_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
