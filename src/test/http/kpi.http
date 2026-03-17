@@ -12,16 +12,33 @@ Authorization: Bearer {{token}}
   "notes": "Good progress so far"
 }
 
+### Submit KPI upsert same period
+POST http://localhost:8080/api/kpis
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "goalId": 1,
+  "targetValue": 100.00,
+  "actualValue": 95.00,
+  "period": "2026-Q1",
+  "notes": "Updated progress"
+}
+
+### Get KPI by ID
+GET http://localhost:8080/api/kpis/1
+Authorization: Bearer {{token}}
+
+### Get KPI not found (404)
+GET http://localhost:8080/api/kpis/999
+Authorization: Bearer {{token}}
+
 ### Get KPIs by Goal
 GET http://localhost:8080/api/kpis/goal/1
 Authorization: Bearer {{token}}
 
 ### Get KPIs by User
 GET http://localhost:8080/api/kpis/user/1
-Authorization: Bearer {{token}}
-
-### Get KPI by ID
-GET http://localhost:8080/api/kpis/1
 Authorization: Bearer {{token}}
 
 ### Get KPIs by Period

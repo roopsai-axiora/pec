@@ -1,5 +1,7 @@
 package com.axiora.pec.user.service;
 
+import com.axiora.pec.common.exception.EmailAlreadyExistsException;
+import com.axiora.pec.common.exception.ResourceNotFoundException;
 import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.dto.AuthResponse;
@@ -32,9 +34,7 @@ public class UserService {
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException(
-                    "Email already registered: " + request.email()
-            );
+            throw new EmailAlreadyExistsException(request.email());
         }
 
         User user = User.builder()
@@ -66,7 +66,7 @@ public class UserService {
 
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new ResourceNotFoundException("User not found")
                 );
 
         String token = jwtUtil.generateToken(user);
@@ -81,7 +81,7 @@ public class UserService {
     public void deactivate(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new ResourceNotFoundException("User not found", userId)
                 );
         user.setActive(false);
         userRepository.save(user);

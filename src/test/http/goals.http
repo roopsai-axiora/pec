@@ -1,5 +1,55 @@
 ### Create Goal
 @token = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyb29wQGF4aW9yYS5jb20iLCJpYXQiOjE3NzM3NDQ0MDksImV4cCI6MTc3MzgzMDgwOX0.FxOZp-T5RRl-10secedJkGt6CcY6zB-ipO5G6s5pz1fpic81JL3Ss9UFMg5wGzIo
+### Create Goal
+POST http://localhost:8080/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Improve Code Quality",
+  "description": "Increase test coverage to 80%",
+  "weightage": 30.00,
+  "period": "2026-Q1",
+  "assignedToId": 1
+}
+
+### Create Goal weightage exceeded (422)
+POST http://localhost:8080/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Test Goal",
+  "description": "Test",
+  "weightage": 99.00,
+  "period": "2026-Q1",
+  "assignedToId": 1
+}
+
+### Create Goal missing fields (400)
+POST http://localhost:8080/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "",
+  "weightage": 30.00,
+  "period": "2026-Q1",
+  "assignedToId": 1
+}
+
+### Get Goal by ID
+GET http://localhost:8080/api/goals/1
+Authorization: Bearer {{token}}
+
+### Get Goal not found (404)
+GET http://localhost:8080/api/goals/999
+Authorization: Bearer {{token}}
+
+### Get Goals by User
+GET http://localhost:8080/api/goals/user/1
+Authorization: Bearer {{token}}
+
 ### Update Goal
 PUT http://localhost:8080/api/goals/1
 Content-Type: application/json
@@ -8,7 +58,11 @@ Authorization: Bearer {{token}}
 {
   "title": "Improve Code Quality Updated",
   "description": "Increase test coverage to 90%",
-  "weightage": 40.00,
+  "weightage": 30.00,
   "period": "2026-Q1",
   "assignedToId": 1
 }
+
+### Delete Goal
+DELETE http://localhost:8080/api/goals/1
+Authorization: Bearer {{token}}

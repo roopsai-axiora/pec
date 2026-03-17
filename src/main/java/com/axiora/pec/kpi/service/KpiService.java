@@ -1,5 +1,6 @@
 package com.axiora.pec.kpi.service;
 
+import com.axiora.pec.common.exception.ResourceNotFoundException;
 import com.axiora.pec.goal.domain.Goal;
 import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.kpi.domain.KpiValue;
@@ -38,13 +39,13 @@ public class KpiService {
         Goal goal = goalRepository
                 .findById(request.goalId())
                 .orElseThrow(() ->
-                        new RuntimeException("Goal not found: "
+                        new ResourceNotFoundException("Goal not found: "
                                 + request.goalId()));
 
         User submittedBy = userRepository
                 .findById(submittedById)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found: "
+                        new ResourceNotFoundException("User not found: "
                                 + submittedById));
 
         // Upsert logic — update if exists, create if not
@@ -82,7 +83,7 @@ public class KpiService {
     public KpiResponse getById(Long id) {
         return toResponse(kpiRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("KPI not found: " + id)
+                        new ResourceNotFoundException("KPI Value:  " + id)
                 ));
     }
 

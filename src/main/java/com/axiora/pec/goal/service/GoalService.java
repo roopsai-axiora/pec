@@ -1,5 +1,7 @@
 package com.axiora.pec.goal.service;
 
+import com.axiora.pec.common.exception.ResourceNotFoundException;
+import com.axiora.pec.common.exception.WeightageExceededException;
 import com.axiora.pec.goal.domain.Goal;
 import com.axiora.pec.goal.domain.GoalStatus;
 import com.axiora.pec.goal.dto.GoalRequest;
@@ -33,13 +35,13 @@ public class GoalService {
         User assignedTo = userRepository
                 .findById(request.assignedToId())
                 .orElseThrow(() ->
-                        new RuntimeException("User not found: "
+                        new ResourceNotFoundException("User not found: "
                                 + request.assignedToId()));
 
         User createdBy = userRepository
                 .findById(createdById)
                 .orElseThrow(() ->
-                        new RuntimeException("Creator not found: "
+                        new ResourceNotFoundException("Creator not found: "
                                 + createdById));
 
         // Validate total weightage does not exceed 100
@@ -51,9 +53,7 @@ public class GoalService {
 
         if (existing.add(request.weightage())
                 .compareTo(new BigDecimal("100.00")) > 0) {
-            throw new RuntimeException(
-                    "Total weightage exceeds 100 for this period"
-            );
+            throw new WeightageExceededException();
         }
 
         Goal goal = Goal.builder()
@@ -79,7 +79,7 @@ public class GoalService {
     public GoalResponse getById(Long id) {
         return toResponse(goalRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Goal not found: " + id)
+                        new ResourceNotFoundException("Goal not found: ", id)
                 ));
     }
 
@@ -87,7 +87,7 @@ public class GoalService {
     public GoalResponse update(Long id, GoalRequest request) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Goal not found: " + id)
+                        new ResourceNotFoundException("Goal not found: ", id)
                 );
 
         goal.setTitle(request.title());
@@ -103,7 +103,7 @@ public class GoalService {
     public void delete(Long id) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Goal not found: " + id)
+                        new ResourceNotFoundException("Goal not found: ", id)
                 );
         goal.setStatus(GoalStatus.CANCELLED);
         goal.setUpdatedAt(Instant.now());
