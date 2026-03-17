@@ -1,5 +1,7 @@
 package com.axiora.pec.user.service;
 
+import com.axiora.pec.audit.AuditAction;
+import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
 import com.axiora.pec.common.exception.ResourceNotFoundException;
 import com.axiora.pec.user.domain.User;
@@ -20,15 +22,17 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final AuditService auditService;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager, AuditService auditService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
+        this.auditService = auditService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -45,6 +49,13 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+        auditService.log(
+                AuditAction.USER_REGISTERED,
+                user.getId(),
+                "User",
+                user.getId(),
+                "User registered: " + user.getEmail()
+        );
 
         String token = jwtUtil.generateToken(user);
 
@@ -69,6 +80,14 @@ public class UserService {
                         new ResourceNotFoundException("User not found")
                 );
 
+        auditService.log(
+                AuditAction.USER_LOGGED_IN,
+                user.getId(),
+                "User",
+                user.getId(),
+                "User logged in: " + user.getEmail()
+        );
+
         String token = jwtUtil.generateToken(user);
 
         return new AuthResponse(
@@ -85,5 +104,12 @@ public class UserService {
                 );
         user.setActive(false);
         userRepository.save(user);
+        auditService.log(
+                AuditAction.USER_DEACTIVATED,
+                userId,
+                "User",
+                userId,
+                "User deactivated: " + user.getEmail()
+        );
     }
 }

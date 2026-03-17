@@ -1,0 +1,11 @@
+### Get audit logs by user
+GET http://localhost:8080/api/audit/user/1
+Authorization: Bearer {{token}}
+
+### Get audit logs by action
+GET http://localhost:8080/api/audit/action/USER_REGISTERED
+Authorization: Bearer {{token}}
+
+### Get audit logs by entity
+GET http://localhost:8080/api/audit/entity/Goal/1
+Authorization: Bearer {{token}}
