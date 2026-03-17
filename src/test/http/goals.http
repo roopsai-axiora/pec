@@ -1,0 +1,14 @@
+### Create Goal
+@token = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyb29wQGF4aW9yYS5jb20iLCJpYXQiOjE3NzM3NDQ0MDksImV4cCI6MTc3MzgzMDgwOX0.FxOZp-T5RRl-10secedJkGt6CcY6zB-ipO5G6s5pz1fpic81JL3Ss9UFMg5wGzIo
+### Update Goal
+PUT http://localhost:8080/api/goals/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Improve Code Quality Updated",
+  "description": "Increase test coverage to 90%",
+  "weightage": 40.00,
+  "period": "2026-Q1",
+  "assignedToId": 1
+}
