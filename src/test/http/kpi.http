@@ -1,0 +1,29 @@
+### Submit KPI
+@token = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyb29wQGF4aW9yYS5jb20iLCJpYXQiOjE3NzM3NDQ0MDksImV4cCI6MTc3MzgzMDgwOX0.FxOZp-T5RRl-10secedJkGt6CcY6zB-ipO5G6s5pz1fpic81JL3Ss9UFMg5wGzIo
+POST http://localhost:8080/api/kpis
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "goalId": 1,
+  "targetValue": 100.00,
+  "actualValue": 85.00,
+  "period": "2026-Q1",
+  "notes": "Good progress so far"
+}
+
+### Get KPIs by Goal
+GET http://localhost:8080/api/kpis/goal/1
+Authorization: Bearer {{token}}
+
+### Get KPIs by User
+GET http://localhost:8080/api/kpis/user/1
+Authorization: Bearer {{token}}
+
+### Get KPI by ID
+GET http://localhost:8080/api/kpis/1
+Authorization: Bearer {{token}}
+
+### Get KPIs by Period
+GET http://localhost:8080/api/kpis/period/2026-Q1
+Authorization: Bearer {{token}}
