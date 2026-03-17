@@ -15,7 +15,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   data:
     redis:
@@ -28,3 +27,8 @@ server:
 logging:
   level:
     com.axiora.pec: DEBUG
+
+pec:
+  jwt:
+    secret: 3f8c2a1d9e4b7f6a2c5d8e1f4a7b0c3d6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1
+    expiration-ms: 86400000
