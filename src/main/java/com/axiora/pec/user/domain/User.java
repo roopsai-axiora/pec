@@ -1,4 +1,4 @@
-package com.axiora.pec.user;
+package com.axiora.pec.user.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

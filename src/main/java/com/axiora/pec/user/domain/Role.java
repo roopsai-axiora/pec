@@ -1,4 +1,4 @@
-package com.axiora.pec.user;
+package com.axiora.pec.user.domain;
 
 public enum Role {
     ADMIN,

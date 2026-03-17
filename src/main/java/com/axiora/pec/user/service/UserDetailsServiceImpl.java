@@ -1,6 +1,6 @@
-package com.axiora.pec.user;
+package com.axiora.pec.user.service;
 
-import lombok.RequiredArgsConstructor;
+import com.axiora.pec.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
