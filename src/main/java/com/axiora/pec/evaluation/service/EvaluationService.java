@@ -92,11 +92,8 @@ public class EvaluationService {
 
         // Fetch goals for user and period
         List<Goal> goals = goalRepository
-                .findByAssignedToId(user.getId())
-                .stream()
-                .filter(g -> g.getPeriod()
-                        .equals(request.period()))
-                .toList();
+                .findByAssignedToIdAndPeriod(
+                        user.getId(), request.period());
 
         if (goals.isEmpty()) {
             throw new IllegalArgumentException(

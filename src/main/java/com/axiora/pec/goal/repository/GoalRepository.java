@@ -18,6 +18,9 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     List<Goal> findByPeriod(String period);
 
+    List<Goal> findByAssignedToIdAndPeriod(
+            Long userId, String period);
+
     @Query("SELECT SUM(g.weightage) FROM Goal g " +
             "WHERE g.assignedTo.id = :userId " +
             "AND g.period = :period " +
