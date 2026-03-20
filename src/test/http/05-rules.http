@@ -106,3 +106,48 @@ Authorization: Bearer {{token}}
   "actionValue": 5.00,
   "priority": 4
 }
+
+### Create Rule - null threshold (should fail 500)
+POST http://localhost:8080/api/rules
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Invalid Rule",
+  "operator": "GT",
+  "thresholdValue": null,
+  "action": "ADD",
+  "actionValue": 10.00,
+  "priority": 5
+}
+
+### Create Rule - negative threshold (should fail 500)
+POST http://localhost:8080/api/rules
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Invalid Rule",
+  "operator": "GT",
+  "thresholdValue": -10.00,
+  "action": "ADD",
+  "actionValue": 10.00,
+  "priority": 5
+}
+
+### Create Rule - BETWEEN upper less than lower (should fail 500)
+POST http://localhost:8080/api/rules
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Invalid BETWEEN",
+  "operator": "BETWEEN",
+  "thresholdValue": 90.00,
+  "thresholdValueUpper": 70.00,
+  "action": "ADD",
+  "actionValue": 10.00,
+  "priority": 5
+}
+
+### Create Rule - priorit

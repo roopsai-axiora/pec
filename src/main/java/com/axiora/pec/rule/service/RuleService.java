@@ -5,6 +5,7 @@ import com.axiora.pec.rule.domain.Rule;
 import com.axiora.pec.rule.domain.RuleOperator;
 import com.axiora.pec.rule.dto.RuleRequest;
 import com.axiora.pec.rule.dto.RuleResponse;
+import com.axiora.pec.rule.engine.RuleValidator;
 import com.axiora.pec.rule.repository.RuleRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,22 +19,19 @@ import java.util.List;
 public class RuleService {
 
     private final RuleRepository ruleRepository;
+    private final RuleValidator ruleValidator;
 
-    public RuleService(RuleRepository ruleRepository) {
+    public RuleService(RuleRepository ruleRepository,
+                       RuleValidator ruleValidator) {
         this.ruleRepository = ruleRepository;
+        this.ruleValidator = ruleValidator;
     }
 
     @Transactional
     @CacheEvict(value = "rules", allEntries = true)
     public RuleResponse create(RuleRequest request) {
 
-        if (request.operator() == RuleOperator.BETWEEN
-                && request.thresholdValueUpper() == null) {
-            throw new IllegalArgumentException(
-                    "BETWEEN operator requires upper threshold"
-            );
-        }
-
+        // Check duplicate priority
         if (ruleRepository.existsByPriority(
                 request.priority())) {
             throw new IllegalArgumentException(
@@ -54,6 +52,9 @@ public class RuleService {
                 .actionValue(request.actionValue())
                 .priority(request.priority())
                 .build();
+
+        // Validate before saving
+        ruleValidator.validate(rule);
 
         return toResponse(ruleRepository.save(rule));
     }
@@ -95,13 +96,6 @@ public class RuleService {
                         new ResourceNotFoundException(
                                 "Rule", id));
 
-        if (request.operator() == RuleOperator.BETWEEN
-                && request.thresholdValueUpper() == null) {
-            throw new IllegalArgumentException(
-                    "BETWEEN operator requires upper threshold"
-            );
-        }
-
         rule.setName(request.name());
         rule.setDescription(request.description());
         rule.setOperator(request.operator());
@@ -112,6 +106,9 @@ public class RuleService {
         rule.setActionValue(request.actionValue());
         rule.setPriority(request.priority());
         rule.setUpdatedAt(Instant.now());
+
+        // Validate before saving
+        ruleValidator.validate(rule);
 
         return toResponse(ruleRepository.save(rule));
     }
