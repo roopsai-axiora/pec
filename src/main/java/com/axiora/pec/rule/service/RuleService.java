@@ -6,6 +6,8 @@ import com.axiora.pec.rule.domain.RuleOperator;
 import com.axiora.pec.rule.dto.RuleRequest;
 import com.axiora.pec.rule.dto.RuleResponse;
 import com.axiora.pec.rule.repository.RuleRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +24,9 @@ public class RuleService {
     }
 
     @Transactional
+    @CacheEvict(value = "rules", allEntries = true)
     public RuleResponse create(RuleRequest request) {
 
-        // Validate BETWEEN has upper bound
         if (request.operator() == RuleOperator.BETWEEN
                 && request.thresholdValueUpper() == null) {
             throw new IllegalArgumentException(
@@ -32,7 +34,6 @@ public class RuleService {
             );
         }
 
-        // Check duplicate priority
         if (ruleRepository.existsByPriority(
                 request.priority())) {
             throw new IllegalArgumentException(
@@ -65,9 +66,14 @@ public class RuleService {
                 .toList();
     }
 
-    public List<RuleResponse> getActiveRules() {
+    @Cacheable(value = "rules", key = "'active'")
+    public List<Rule> getActiveRulesFromCache() {
         return ruleRepository
-                .findByActiveTrueOrderByPriorityAsc()
+                .findByActiveTrueOrderByPriorityAsc();
+    }
+
+    public List<RuleResponse> getActiveRules() {
+        return getActiveRulesFromCache()
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -81,6 +87,7 @@ public class RuleService {
     }
 
     @Transactional
+    @CacheEvict(value = "rules", allEntries = true)
     public RuleResponse update(Long id,
                                RuleRequest request) {
         Rule rule = ruleRepository.findById(id)
@@ -88,7 +95,6 @@ public class RuleService {
                         new ResourceNotFoundException(
                                 "Rule", id));
 
-        // Validate BETWEEN
         if (request.operator() == RuleOperator.BETWEEN
                 && request.thresholdValueUpper() == null) {
             throw new IllegalArgumentException(
@@ -111,6 +117,7 @@ public class RuleService {
     }
 
     @Transactional
+    @CacheEvict(value = "rules", allEntries = true)
     public void activate(Long id) {
         Rule rule = ruleRepository.findById(id)
                 .orElseThrow(() ->
@@ -122,6 +129,7 @@ public class RuleService {
     }
 
     @Transactional
+    @CacheEvict(value = "rules", allEntries = true)
     public void deactivate(Long id) {
         Rule rule = ruleRepository.findById(id)
                 .orElseThrow(() ->
@@ -133,18 +141,18 @@ public class RuleService {
     }
 
     private RuleResponse toResponse(Rule rule) {
-        return new RuleResponse(
-                rule.getId(),
-                rule.getName(),
-                rule.getDescription(),
-                rule.getOperator(),
-                rule.getThresholdValue(),
-                rule.getThresholdValueUpper(),
-                rule.getAction(),
-                rule.getActionValue(),
-                rule.getPriority(),
-                rule.isActive(),
-                rule.getCreatedAt()
-        );
+        return RuleResponse.builder()
+                .id(rule.getId())
+                .name(rule.getName())
+                .description(rule.getDescription())
+                .operator(rule.getOperator())
+                .thresholdValue(rule.getThresholdValue())
+                .thresholdValueUpper(rule.getThresholdValueUpper())
+                .action(rule.getAction())
+                .actionValue(rule.getActionValue())
+                .priority(rule.getPriority())
+                .active(rule.isActive())
+                .createdAt(rule.getCreatedAt())
+                .build();
     }
 }
