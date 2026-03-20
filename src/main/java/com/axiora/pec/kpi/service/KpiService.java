@@ -6,6 +6,7 @@ import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.kpi.domain.KpiValue;
 import com.axiora.pec.kpi.dto.KpiRequest;
 import com.axiora.pec.kpi.dto.KpiResponse;
+import com.axiora.pec.kpi.mapper.KpiMapper;
 import com.axiora.pec.kpi.repository.KpiRepository;
 import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.repository.UserRepository;
@@ -23,13 +24,15 @@ public class KpiService {
     private final KpiRepository kpiRepository;
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
+    private final KpiMapper kpiMapper;
 
     public KpiService(KpiRepository kpiRepository,
                       GoalRepository goalRepository,
-                      UserRepository userRepository) {
+                      UserRepository userRepository, KpiMapper kpiMapper) {
         this.kpiRepository = kpiRepository;
         this.goalRepository = goalRepository;
         this.userRepository = userRepository;
+        this.kpiMapper = kpiMapper;
     }
 
     @Transactional
@@ -95,8 +98,6 @@ public class KpiService {
     }
 
     private KpiResponse toResponse(KpiValue kpi) {
-
-        // Calculate achievement percentage
         BigDecimal achievement = BigDecimal.ZERO;
         if (kpi.getTargetValue()
                 .compareTo(BigDecimal.ZERO) > 0) {
@@ -107,17 +108,18 @@ public class KpiService {
                     .setScale(2, RoundingMode.HALF_UP);
         }
 
+        KpiResponse response = kpiMapper.toResponse(kpi);
         return new KpiResponse(
-                kpi.getId(),
-                kpi.getGoal().getId(),
-                kpi.getGoal().getTitle(),
-                kpi.getTargetValue(),
-                kpi.getActualValue(),
+                response.id(),
+                response.goalId(),
+                response.goalTitle(),
+                response.targetValue(),
+                response.actualValue(),
                 achievement,
-                kpi.getPeriod(),
-                kpi.getNotes(),
-                kpi.getSubmittedBy().getFullName(),
-                kpi.getCreatedAt()
+                response.period(),
+                response.notes(),
+                response.submittedByName(),
+                response.createdAt()
         );
     }
 }

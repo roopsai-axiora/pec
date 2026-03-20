@@ -8,6 +8,7 @@ import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.kpi.domain.KpiValue;
 import com.axiora.pec.kpi.dto.KpiRequest;
 import com.axiora.pec.kpi.dto.KpiResponse;
+import com.axiora.pec.kpi.mapper.KpiMapper;
 import com.axiora.pec.kpi.repository.KpiRepository;
 import com.axiora.pec.user.domain.Role;
 import com.axiora.pec.user.domain.User;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +31,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class KpiServiceTest {
+
+    @Mock
+    private KpiMapper kpiMapper;
 
     @Mock
     private KpiRepository kpiRepository;
@@ -88,6 +93,20 @@ class KpiServiceTest {
                 "2026-Q1",
                 "Good progress"
         );
+
+        lenient().when(kpiMapper.toResponse(any()))
+                .thenReturn(new KpiResponse(
+                        1L,
+                        1L,
+                        "Improve Code Quality",
+                        new BigDecimal("100.00"),
+                        new BigDecimal("85.00"),
+                        new BigDecimal("85.00"),
+                        "2026-Q1",
+                        "Good progress",
+                        "Roop Sai",
+                        Instant.now()
+                ));
     }
 
     @Test

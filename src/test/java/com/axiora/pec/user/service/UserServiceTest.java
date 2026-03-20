@@ -8,6 +8,7 @@ import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.dto.LoginRequest;
 import com.axiora.pec.user.dto.RegisterRequest;
 import com.axiora.pec.user.dto.AuthResponse;
+import com.axiora.pec.user.mapper.UserMapper;
 import com.axiora.pec.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    @Mock
+    private UserMapper userMapper;
 
     @Mock
     private UserRepository userRepository;
@@ -71,6 +75,13 @@ class UserServiceTest {
                 "roop@axiora.com",
                 "password123"
         );
+
+        lenient().when(userMapper.toAuthResponse(any()))
+                .thenReturn(new AuthResponse(
+                        null,
+                        "roop@axiora.com",
+                        "ADMIN"
+                ));
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.axiora.pec.goal.domain.Goal;
 import com.axiora.pec.goal.domain.GoalStatus;
 import com.axiora.pec.goal.dto.GoalRequest;
 import com.axiora.pec.goal.dto.GoalResponse;
+import com.axiora.pec.goal.mapper.GoalMapper;
 import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.domain.Role;
 import com.axiora.pec.user.domain.User;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceTest {
+    @Mock
+    private GoalMapper goalMapper;
 
     @Mock
     private GoalRepository goalRepository;
@@ -73,6 +77,19 @@ class GoalServiceTest {
                 "2026-Q1",
                 1L
         );
+
+        lenient().when(goalMapper.toResponse(any()))
+                .thenReturn(new GoalResponse(
+                        1L,
+                        "Improve Code Quality",
+                        "Increase test coverage",
+                        new BigDecimal("30.00"),
+                        GoalStatus.ACTIVE,
+                        "2026-Q1",
+                        "Roop Sai",
+                        "roop@axiora.com",
+                        Instant.now()
+                ));
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.axiora.pec.goal.domain.Goal;
 import com.axiora.pec.goal.domain.GoalStatus;
 import com.axiora.pec.goal.dto.GoalRequest;
 import com.axiora.pec.goal.dto.GoalResponse;
+import com.axiora.pec.goal.mapper.GoalMapper;
 import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.repository.UserRepository;
@@ -21,11 +22,13 @@ public class GoalService {
 
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
+    private final GoalMapper goalMapper;
 
     public GoalService(GoalRepository goalRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository, GoalMapper goalMapper) {
         this.goalRepository = goalRepository;
         this.userRepository = userRepository;
+        this.goalMapper = goalMapper;
     }
 
     @Transactional
@@ -111,16 +114,6 @@ public class GoalService {
     }
 
     private GoalResponse toResponse(Goal goal) {
-        return new GoalResponse(
-                goal.getId(),
-                goal.getTitle(),
-                goal.getDescription(),
-                goal.getWeightage(),
-                goal.getStatus(),
-                goal.getPeriod(),
-                goal.getAssignedTo().getFullName(),
-                goal.getAssignedTo().getEmail(),
-                goal.getCreatedAt()
-        );
+        return goalMapper.toResponse(goal);
     }
 }

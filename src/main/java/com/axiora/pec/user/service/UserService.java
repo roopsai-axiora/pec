@@ -9,6 +9,7 @@ import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.dto.AuthResponse;
 import com.axiora.pec.user.dto.LoginRequest;
 import com.axiora.pec.user.dto.RegisterRequest;
+import com.axiora.pec.user.mapper.UserMapper;
 import com.axiora.pec.user.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,16 +24,18 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final AuditService auditService;
+    private final UserMapper userMapper;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
-                       AuthenticationManager authenticationManager, AuditService auditService) {
+                       AuthenticationManager authenticationManager, AuditService auditService, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.auditService = auditService;
+        this.userMapper = userMapper;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -59,10 +62,11 @@ public class UserService {
 
         String token = jwtUtil.generateToken(user);
 
+        AuthResponse response = userMapper.toAuthResponse(user);
         return new AuthResponse(
                 token,
-                user.getEmail(),
-                user.getRole().name()
+                response.email(),
+                response.role()
         );
     }
 
@@ -90,10 +94,11 @@ public class UserService {
 
         String token = jwtUtil.generateToken(user);
 
+        AuthResponse response = userMapper.toAuthResponse(user);
         return new AuthResponse(
                 token,
-                user.getEmail(),
-                user.getRole().name()
+                response.email(),
+                response.role()
         );
     }
 
