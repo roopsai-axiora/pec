@@ -1,0 +1,58 @@
+### 1. Submit KPI for Goal 1
+POST {{baseUrl}}/api/kpis
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "goalId": 1,
+  "targetValue": 100.00,
+  "actualValue": 95.00,
+  "period": "2026-Q1",
+  "notes": "Great progress on test coverage"
+}
+
+### 2. Submit KPI for Goal 2
+POST {{baseUrl}}/api/kpis
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "goalId": 2,
+  "targetValue": 100.00,
+  "actualValue": 75.00,
+  "period": "2026-Q1",
+  "notes": "Some delays in sprint"
+}
+
+### 3. Update existing KPI (upsert)
+POST {{baseUrl}}/api/kpis
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "goalId": 1,
+  "targetValue": 100.00,
+  "actualValue": 98.00,
+  "period": "2026-Q1",
+  "notes": "Updated progress"
+}
+
+### 4. Get KPI by ID
+GET {{baseUrl}}/api/kpis/1
+Authorization: Bearer {{token}}
+
+### 5. Get KPI not found (404)
+GET {{baseUrl}}/api/kpis/999
+Authorization: Bearer {{token}}
+
+### 6. Get KPIs by Goal
+GET {{baseUrl}}/api/kpis/goal/1
+Authorization: Bearer {{token}}
+
+### 7. Get KPIs by User
+GET {{baseUrl}}/api/kpis/user/1
+Authorization: Bearer {{token}}
+
+### 8. Get KPIs by Period
+GET {{baseUrl}}/api/kpis/period/2026-Q1
+Authorization: Bearer {{token}}

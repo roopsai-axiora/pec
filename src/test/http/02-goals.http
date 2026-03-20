@@ -1,0 +1,80 @@
+### 1. Create Goal for Employee
+POST {{baseUrl}}/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Improve Code Quality",
+  "description": "Increase test coverage to 80%",
+  "weightage": 30.00,
+  "period": "2026-Q1",
+  "assignedToId": 2
+}
+
+### 2. Create Second Goal
+POST {{baseUrl}}/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Deliver Features on Time",
+  "description": "Complete all sprint tasks",
+  "weightage": 40.00,
+  "period": "2026-Q1",
+  "assignedToId": 2
+}
+
+### 3. Create Third Goal
+POST {{baseUrl}}/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Customer Satisfaction",
+  "description": "Maintain high customer ratings",
+  "weightage": 30.00,
+  "period": "2026-Q1",
+  "assignedToId": 2
+}
+
+### 4. Create Goal weightage exceeded (422)
+POST {{baseUrl}}/api/goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Extra Goal",
+  "description": "This should fail",
+  "weightage": 10.00,
+  "period": "2026-Q1",
+  "assignedToId": 2
+}
+
+### 5. Get Goal by ID
+GET {{baseUrl}}/api/goals/1
+Authorization: Bearer {{token}}
+
+### 6. Get Goal not found (404)
+GET {{baseUrl}}/api/goals/999
+Authorization: Bearer {{token}}
+
+### 7. Get Goals by User
+GET {{baseUrl}}/api/goals/user/2
+Authorization: Bearer {{token}}
+
+### 8. Update Goal
+PUT {{baseUrl}}/api/goals/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Improve Code Quality Updated",
+  "description": "Increase test coverage to 90%",
+  "weightage": 30.00,
+  "period": "2026-Q1",
+  "assignedToId": 2
+}
+
+### 9. Delete Goal
+DELETE {{baseUrl}}/api/goals/3
+Authorization: Bearer {{token}}
