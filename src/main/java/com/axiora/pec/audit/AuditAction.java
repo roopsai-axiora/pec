@@ -7,5 +7,6 @@ public enum AuditAction {
     GOAL_CREATED,
     GOAL_UPDATED,
     GOAL_DELETED,
-    KPI_SUBMITTED
+    KPI_SUBMITTED,
+    EVALUATION_RUN
 }
