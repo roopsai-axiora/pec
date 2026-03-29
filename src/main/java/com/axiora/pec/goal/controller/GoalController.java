@@ -7,6 +7,7 @@ import com.axiora.pec.user.domain.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class GoalController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<GoalResponse> create(
             @Valid @RequestBody GoalRequest request,
             @AuthenticationPrincipal User currentUser) {
@@ -31,6 +33,7 @@ public class GoalController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isCurrentUser(#userId)")
     public ResponseEntity<List<GoalResponse>> getByUser(
             @PathVariable Long userId) {
         return ResponseEntity.ok(
@@ -39,6 +42,7 @@ public class GoalController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isGoalOwner(#id)")
     public ResponseEntity<GoalResponse> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
@@ -47,6 +51,7 @@ public class GoalController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<GoalResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody GoalRequest request) {
@@ -56,6 +61,7 @@ public class GoalController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("denyAll()")
     public ResponseEntity<Void> delete(
             @PathVariable Long id) {
         goalService.delete(id);

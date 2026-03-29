@@ -6,6 +6,7 @@ import com.axiora.pec.user.dto.RegisterRequest;
 import com.axiora.pec.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,6 +36,7 @@ public class UserController {
     }
 
     @PatchMapping("/deactivate/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deactivate(
             @PathVariable Long id) {
         userService.deactivate(id);

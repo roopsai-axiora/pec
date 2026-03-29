@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -165,6 +166,36 @@ class KpiServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> kpiService.upsert(badRequest, 1L));
+    }
+
+    @Test
+    void shouldThrowAccessDeniedWhenGoalBelongsToAnotherUser() {
+        User differentOwner = User.builder()
+                .id(2L)
+                .fullName("Other User")
+                .email("other@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .build();
+
+        Goal goalOwnedByAnotherEmployee = Goal.builder()
+                .id(1L)
+                .title("Improve Code Quality")
+                .description("Increase test coverage")
+                .weightage(new BigDecimal("30.00"))
+                .period("2026-Q1")
+                .status(GoalStatus.ACTIVE)
+                .assignedTo(differentOwner)
+                .createdBy(testUser)
+                .build();
+
+        when(goalRepository.findById(1L))
+                .thenReturn(Optional.of(goalOwnedByAnotherEmployee));
+
+        assertThrows(AccessDeniedException.class,
+                () -> kpiService.upsert(kpiRequest, 1L));
+        verify(userRepository, never()).findById(any());
+        verify(kpiRepository, never()).save(any());
     }
 
     @Test

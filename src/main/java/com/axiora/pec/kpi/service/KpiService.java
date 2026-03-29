@@ -10,6 +10,7 @@ import com.axiora.pec.kpi.mapper.KpiMapper;
 import com.axiora.pec.kpi.repository.KpiRepository;
 import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,12 @@ public class KpiService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Goal not found: "
                                 + request.goalId()));
+
+        if (!goal.getAssignedTo().getId().equals(submittedById)) {
+            throw new AccessDeniedException(
+                    "Employees can submit KPI only for their own goals"
+            );
+        }
 
         User submittedBy = userRepository
                 .findById(submittedById)

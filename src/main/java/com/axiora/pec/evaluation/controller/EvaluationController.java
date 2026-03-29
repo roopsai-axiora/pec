@@ -5,6 +5,7 @@ import com.axiora.pec.evaluation.dto.EvaluationResponse;
 import com.axiora.pec.evaluation.service.EvaluationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class EvaluationController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<EvaluationResponse> evaluate(
             @Valid @RequestBody EvaluationRequest request) {
         return ResponseEntity.ok(
@@ -29,6 +31,7 @@ public class EvaluationController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isEvaluationOwner(#id)")
     public ResponseEntity<EvaluationResponse> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
@@ -37,6 +40,7 @@ public class EvaluationController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isCurrentUser(#userId)")
     public ResponseEntity<List<EvaluationResponse>> getByUser(
             @PathVariable Long userId) {
         return ResponseEntity.ok(

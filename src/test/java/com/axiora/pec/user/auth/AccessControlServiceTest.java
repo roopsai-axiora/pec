@@ -17,10 +17,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -158,12 +161,13 @@ class AccessControlServiceTest {
         assertFalse(accessControlService.isCurrentUser(1L));
     }
 
-    private void setAuthentication(Object principal, List<?> authorities) {
-        @SuppressWarnings("unchecked")
+    private void setAuthentication(
+            Object principal,
+            Collection<? extends GrantedAuthority> authorities) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 principal,
                 "n/a",
-                (List<SimpleGrantedAuthority>) authorities
+                new ArrayList<>(authorities)
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
