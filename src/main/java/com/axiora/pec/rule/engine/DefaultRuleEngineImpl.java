@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,9 +39,7 @@ public class DefaultRuleEngineImpl implements RuleEngine {
         // Sort by priority ascending (lowest first)
         List<Rule> sorted = rules.stream()
                 .filter(Rule::isActive)
-                .sorted((a, b) ->
-                        Integer.compare(a.getPriority(),
-                                b.getPriority()))
+                .sorted(Comparator.comparingInt(Rule::getPriority))
                 .toList();
 
         // First match wins

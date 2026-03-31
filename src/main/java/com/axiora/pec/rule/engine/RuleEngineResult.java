@@ -21,7 +21,7 @@ public class RuleEngineResult {
     /** True if employee is disqualified */
     private final boolean disqualified;
 
-    /** Human readable description of what happened */
+    /** Human-readable description of what happened */
     private final String description;
 
     public static RuleEngineResult noMatch(

@@ -2,7 +2,6 @@ package com.axiora.pec.rule.service;
 
 import com.axiora.pec.common.exception.ResourceNotFoundException;
 import com.axiora.pec.rule.domain.Rule;
-import com.axiora.pec.rule.domain.RuleOperator;
 import com.axiora.pec.rule.dto.RuleRequest;
 import com.axiora.pec.rule.dto.RuleResponse;
 import com.axiora.pec.rule.engine.RuleValidator;
