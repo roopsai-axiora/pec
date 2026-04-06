@@ -4,8 +4,9 @@ import com.axiora.pec.audit.AuditAction;
 import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
 import com.axiora.pec.common.exception.ResourceNotFoundException;
-import com.axiora.pec.user.domain.User;
+import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
+import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.dto.AuthResponse;
 import com.axiora.pec.user.dto.LoginRequest;
 import com.axiora.pec.user.dto.RegisterRequest;
@@ -25,17 +26,22 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final AuditService auditService;
     private final UserMapper userMapper;
+    private final AuthCacheService authCacheService;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
-                       AuthenticationManager authenticationManager, AuditService auditService, UserMapper userMapper) {
+                       AuthenticationManager authenticationManager,
+                       AuditService auditService,
+                       UserMapper userMapper,
+                       AuthCacheService authCacheService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.auditService = auditService;
         this.userMapper = userMapper;
+        this.authCacheService = authCacheService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -52,6 +58,7 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+        authCacheService.put(user);
         auditService.log(
                 AuditAction.USER_REGISTERED,
                 user.getId(),
@@ -83,6 +90,7 @@ public class UserService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found")
                 );
+        authCacheService.put(user);
 
         auditService.log(
                 AuditAction.USER_LOGGED_IN,
@@ -109,6 +117,7 @@ public class UserService {
                 );
         user.setActive(false);
         userRepository.save(user);
+        authCacheService.evictByEmail(user.getEmail());
         auditService.log(
                 AuditAction.USER_DEACTIVATED,
                 userId,

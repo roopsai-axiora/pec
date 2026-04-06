@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -19,12 +18,13 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+    private final AuthCacheService authCacheService;
 
     public JwtAuthFilter(JwtUtil jwtUtil,
-                         UserDetailsService userDetailsService) {
+                         UserDetailsService userDetailsService,
+                         AuthCacheService authCacheService) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
+        this.authCacheService = authCacheService;
     }
 
     @Override
@@ -50,8 +50,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext()
                         .getAuthentication() == null) {
 
-            UserDetails userDetails = userDetailsService
-                    .loadUserByUsername(username);
+            AuthenticatedUserPrincipal userDetails =
+                    authCacheService.getByEmail(username);
 
             if (jwtUtil.isTokenValid(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =

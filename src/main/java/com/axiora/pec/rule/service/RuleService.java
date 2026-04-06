@@ -6,6 +6,8 @@ import com.axiora.pec.rule.dto.RuleRequest;
 import com.axiora.pec.rule.dto.RuleResponse;
 import com.axiora.pec.rule.engine.RuleValidator;
 import com.axiora.pec.rule.repository.RuleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Service
 public class RuleService {
+
+    private static final Logger log = LoggerFactory.getLogger(RuleService.class);
 
     private final RuleRepository ruleRepository;
     private final RuleValidator ruleValidator;
@@ -67,13 +71,10 @@ public class RuleService {
     }
 
     @Cacheable(value = "rules", key = "'active'")
-    public List<Rule> getActiveRulesFromCache() {
-        return ruleRepository
-                .findByActiveTrueOrderByPriorityAsc();
-    }
-
     public List<RuleResponse> getActiveRules() {
-        return getActiveRulesFromCache()
+        log.info("Cache miss for active rules. Fetching from database.");
+        return ruleRepository
+                .findByActiveTrueOrderByPriorityAsc()
                 .stream()
                 .map(this::toResponse)
                 .toList();

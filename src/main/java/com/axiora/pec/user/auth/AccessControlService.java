@@ -75,6 +75,10 @@ public class AccessControlService {
 
         Object principal = authentication.getPrincipal();
 
+        if (principal instanceof AuthenticatedUserPrincipal user) {
+            return user.id();
+        }
+
         if (principal instanceof User user) {
             return user.getId();
         }
@@ -95,4 +99,3 @@ public class AccessControlService {
         return null;
     }
 }
-
