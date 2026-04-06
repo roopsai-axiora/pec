@@ -2,6 +2,7 @@ package com.axiora.pec.user.service;
 
 import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
+import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.domain.Role;
 import com.axiora.pec.user.domain.User;
@@ -46,6 +47,9 @@ class UserServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private AuthCacheService authCacheService;
 
     @InjectMocks
     private UserService userService;
@@ -103,6 +107,7 @@ class UserServiceTest {
         assertEquals("roop@axiora.com", response.email());
         assertEquals("ADMIN", response.role());
         verify(userRepository, times(1)).save(any());
+        verify(authCacheService, times(1)).put(any(User.class));
     }
 
     @Test
@@ -132,6 +137,7 @@ class UserServiceTest {
         assertNotNull(response);
         assertEquals("token123", response.token());
         assertEquals("roop@axiora.com", response.email());
+        verify(authCacheService, times(1)).put(testUser);
     }
 
     @Test
@@ -145,5 +151,6 @@ class UserServiceTest {
 
         assertFalse(testUser.isActive());
         verify(userRepository, times(1)).save(testUser);
+        verify(authCacheService, times(1)).evictByEmail("roop@axiora.com");
     }
 }

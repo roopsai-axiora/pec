@@ -125,15 +125,21 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-test</artifactId>
+				<scope>test</scope>
+			</dependency>
 
-		<!-- Source: https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
-		<dependency>
-			<groupId>jakarta.validation</groupId>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-subclass</artifactId>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Source: https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
+			<dependency>
+				<groupId>jakarta.validation</groupId>
 			<artifactId>jakarta.validation-api</artifactId>
 			<version>4.0.0-M1</version>
 			<scope>compile</scope>
