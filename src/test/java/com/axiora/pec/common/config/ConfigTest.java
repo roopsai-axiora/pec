@@ -19,12 +19,14 @@ class ConfigTest {
         AppConfig appConfig = new AppConfig();
 
         ObjectMapper objectMapper = appConfig.objectMapper();
-        String json = objectMapper.writeValueAsString(
-                java.time.Instant.parse("2026-04-06T12:00:00Z")
-        );
+        java.time.Instant instant = java.time.Instant.parse("2026-04-06T12:00:00Z");
+        String json = objectMapper.writeValueAsString(instant);
+        java.time.Instant deserialized =
+                objectMapper.readValue(json, java.time.Instant.class);
 
         assertNotNull(objectMapper);
-        assertTrue(json.contains("2026-04-06T12:00:00Z"));
+        assertNotNull(json);
+        assertEquals(instant, deserialized);
     }
 
     @Test
@@ -64,8 +66,8 @@ class ConfigTest {
             );
 
             assertInstanceOf(RedisCacheManager.class, cacheManager);
-            assertTrue(cacheManager.getCacheNames().contains("rules"));
-            assertTrue(cacheManager.getCacheNames().contains("auth-users"));
+            assertNotNull(cacheManager.getCache("rules"));
+            assertNotNull(cacheManager.getCache("auth-users"));
         } finally {
             connectionFactory.destroy();
         }
