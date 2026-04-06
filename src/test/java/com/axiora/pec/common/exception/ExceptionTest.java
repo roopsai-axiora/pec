@@ -44,7 +44,7 @@ class ExceptionTest {
         WeightageExceededException ex =
                 new WeightageExceededException();
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT,
                 ex.getStatus());
         assertTrue(ex.getMessage()
                 .contains("weightage"));
