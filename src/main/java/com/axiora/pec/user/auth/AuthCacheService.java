@@ -23,7 +23,7 @@ public class AuthCacheService {
 
     @Cacheable(value = "auth-users", key = "#email")
     public AuthenticatedUserPrincipal getByEmail(String email) {
-        log.info("Auth cache miss for {}. Loading user from database.", email);
+        log.info("Auth cache miss while resolving authenticated user. Loading from database.");
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found with email: " + email
@@ -33,12 +33,12 @@ public class AuthCacheService {
 
     @CachePut(value = "auth-users", key = "#user.email")
     public AuthenticatedUserPrincipal put(User user) {
-        log.info("Warming auth cache for {}", user.getEmail());
+        log.info("Warming auth cache for userId={}", user.getId());
         return AuthenticatedUserPrincipal.from(user);
     }
 
     @CacheEvict(value = "auth-users", key = "#email")
     public void evictByEmail(String email) {
-        log.info("Evicting auth cache for {}", email);
+        log.info("Evicting auth cache entry for authenticated user.");
     }
 }
