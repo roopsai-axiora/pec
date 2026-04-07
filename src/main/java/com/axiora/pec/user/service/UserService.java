@@ -6,16 +6,20 @@ import com.axiora.pec.common.exception.EmailAlreadyExistsException;
 import com.axiora.pec.common.exception.ResourceNotFoundException;
 import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
+import com.axiora.pec.user.domain.Role;
 import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.dto.AuthResponse;
 import com.axiora.pec.user.dto.LoginRequest;
 import com.axiora.pec.user.dto.RegisterRequest;
+import com.axiora.pec.user.dto.UserSummaryResponse;
 import com.axiora.pec.user.mapper.UserMapper;
 import com.axiora.pec.user.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -125,5 +129,21 @@ public class UserService {
                 userId,
                 "User deactivated: " + user.getEmail()
         );
+    }
+
+    public List<UserSummaryResponse> getEmployees(String search) {
+        List<User> employees = (search == null || search.isBlank())
+                ? userRepository.findByRoleAndActiveTrueOrderByFullNameAsc(Role.EMPLOYEE)
+                : userRepository.searchActiveUsersByRole(Role.EMPLOYEE, search.trim());
+
+        return employees.stream()
+                .map(user -> new UserSummaryResponse(
+                        user.getId(),
+                        user.getFullName(),
+                        user.getEmail(),
+                        user.getRole().name(),
+                        user.isActive()
+                ))
+                .toList();
     }
 }

@@ -4,6 +4,7 @@ import com.axiora.pec.user.domain.Role;
 import com.axiora.pec.user.dto.AuthResponse;
 import com.axiora.pec.user.dto.LoginRequest;
 import com.axiora.pec.user.dto.RegisterRequest;
+import com.axiora.pec.user.dto.UserSummaryResponse;
 import com.axiora.pec.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -124,5 +129,28 @@ class UserControllerTest {
     void shouldDeactivateUser() throws Exception {
         mockMvc.perform(patch("/api/auth/deactivate/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldGetEmployees() throws Exception {
+        when(userService.getEmployees(eq("jane")))
+                .thenReturn(List.of(
+                        new UserSummaryResponse(
+                                3L,
+                                "Jane Employee",
+                                "jane.employee@axiora.com",
+                                "EMPLOYEE",
+                                true
+                        )
+                ));
+
+        mockMvc.perform(get("/api/auth/employees")
+                        .param("search", "jane"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3))
+                .andExpect(jsonPath("$[0].fullName").value("Jane Employee"))
+                .andExpect(jsonPath("$[0].email").value("jane.employee@axiora.com"))
+                .andExpect(jsonPath("$[0].role").value("EMPLOYEE"))
+                .andExpect(jsonPath("$[0].active").value(true));
     }
 }

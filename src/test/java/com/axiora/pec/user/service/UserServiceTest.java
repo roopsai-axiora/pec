@@ -9,6 +9,7 @@ import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.dto.LoginRequest;
 import com.axiora.pec.user.dto.RegisterRequest;
 import com.axiora.pec.user.dto.AuthResponse;
+import com.axiora.pec.user.dto.UserSummaryResponse;
 import com.axiora.pec.user.mapper.UserMapper;
 import com.axiora.pec.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -152,5 +154,45 @@ class UserServiceTest {
         assertFalse(testUser.isActive());
         verify(userRepository, times(1)).save(testUser);
         verify(authCacheService, times(1)).evictByEmail("roop@axiora.com");
+    }
+
+    @Test
+    void shouldGetActiveEmployeesWithoutSearch() {
+        User employee = User.builder()
+                .id(3L)
+                .fullName("Jane Employee")
+                .email("jane.employee@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .active(true)
+                .build();
+        when(userRepository.findByRoleAndActiveTrueOrderByFullNameAsc(Role.EMPLOYEE))
+                .thenReturn(List.of(employee));
+
+        List<UserSummaryResponse> responses = userService.getEmployees(null);
+
+        assertEquals(1, responses.size());
+        assertEquals("Jane Employee", responses.getFirst().fullName());
+        assertEquals("EMPLOYEE", responses.getFirst().role());
+    }
+
+    @Test
+    void shouldSearchActiveEmployees() {
+        User employee = User.builder()
+                .id(4L)
+                .fullName("John Employee")
+                .email("john.employee@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .active(true)
+                .build();
+        when(userRepository.searchActiveUsersByRole(Role.EMPLOYEE, "john"))
+                .thenReturn(List.of(employee));
+
+        List<UserSummaryResponse> responses = userService.getEmployees(" john ");
+
+        assertEquals(1, responses.size());
+        assertEquals("john.employee@axiora.com", responses.getFirst().email());
+        verify(userRepository).searchActiveUsersByRole(Role.EMPLOYEE, "john");
     }
 }
