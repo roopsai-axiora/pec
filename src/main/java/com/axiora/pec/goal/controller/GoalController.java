@@ -3,7 +3,6 @@ package com.axiora.pec.goal.controller;
 import com.axiora.pec.goal.dto.GoalRequest;
 import com.axiora.pec.goal.dto.GoalResponse;
 import com.axiora.pec.goal.service.GoalService;
-import com.axiora.pec.user.domain.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +25,9 @@ public class GoalController {
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<GoalResponse> create(
             @Valid @RequestBody GoalRequest request,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal(expression = "id") Long currentUserId) {
         return ResponseEntity.ok(
-                goalService.create(request, currentUser.getId())
+                goalService.create(request, currentUserId)
         );
     }
 

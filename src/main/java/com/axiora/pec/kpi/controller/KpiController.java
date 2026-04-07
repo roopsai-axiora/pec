@@ -3,7 +3,6 @@ package com.axiora.pec.kpi.controller;
 import com.axiora.pec.kpi.dto.KpiRequest;
 import com.axiora.pec.kpi.dto.KpiResponse;
 import com.axiora.pec.kpi.service.KpiService;
-import com.axiora.pec.user.domain.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +25,9 @@ public class KpiController {
     @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isGoalOwner(#request.goalId)")
     public ResponseEntity<KpiResponse> upsert(
             @Valid @RequestBody KpiRequest request,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal(expression = "id") Long currentUserId) {
         return ResponseEntity.ok(
-                kpiService.upsert(request, currentUser.getId())
+                kpiService.upsert(request, currentUserId)
         );
     }
 
