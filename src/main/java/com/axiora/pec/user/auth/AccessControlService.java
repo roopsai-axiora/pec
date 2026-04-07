@@ -62,6 +62,14 @@ public class AccessControlService {
                 .orElse(false);
     }
 
+    public boolean isKpiVisibleToManager(Long kpiId) {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            return false;
+        }
+        return kpiRepository.existsByIdAndGoalCreatedById(kpiId, currentUserId);
+    }
+
     public boolean isEvaluationOwner(Long evaluationId) {
         Long currentUserId = getCurrentUserId();
         if (currentUserId == null) {

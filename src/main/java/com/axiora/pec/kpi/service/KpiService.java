@@ -90,6 +90,13 @@ public class KpiService {
                 .toList();
     }
 
+    public List<KpiResponse> getByUserForManager(Long userId, Long managerId) {
+        return kpiRepository.findBySubmittedByIdAndGoalCreatedById(userId, managerId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public KpiResponse getById(Long id) {
         return toResponse(kpiRepository.findById(id)
                 .orElseThrow(() ->

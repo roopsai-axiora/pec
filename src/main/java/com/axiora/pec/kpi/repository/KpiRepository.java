@@ -15,8 +15,13 @@ public interface KpiRepository
 
     List<KpiValue> findBySubmittedById(Long userId);
 
+    List<KpiValue> findBySubmittedByIdAndGoalCreatedById(
+            Long userId, Long createdById);
+
     Optional<KpiValue> findByGoalIdAndPeriod(
             Long goalId, String period);
+
+    boolean existsByIdAndGoalCreatedById(Long id, Long createdById);
 
     List<KpiValue> findByPeriod(String period);
 }

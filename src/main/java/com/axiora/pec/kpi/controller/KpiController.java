@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class KpiController {
     }
 
     @GetMapping("/goal/{goalId}")
-    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isGoalOwner(#goalId)")
+    @PreAuthorize("(hasRole('EMPLOYEE') and @accessControlService.isGoalOwner(#goalId)) or (hasRole('MANAGER') and @accessControlService.isGoalCreator(#goalId))")
     public ResponseEntity<List<KpiResponse>> getByGoal(
             @PathVariable Long goalId) {
         return ResponseEntity.ok(
@@ -41,16 +42,23 @@ public class KpiController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('EMPLOYEE') or hasRole('MANAGER')")
     public ResponseEntity<List<KpiResponse>> getByUser(
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal(expression = "id") Long currentUserId,
+            Authentication authentication) {
+        boolean isManager = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_MANAGER".equals(authority.getAuthority()));
+
         return ResponseEntity.ok(
-                kpiService.getByUser(userId)
+                isManager
+                        ? kpiService.getByUserForManager(userId, currentUserId)
+                        : kpiService.getByUser(userId)
         );
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isKpiOwner(#id)")
+    @PreAuthorize("(hasRole('EMPLOYEE') and @accessControlService.isKpiOwner(#id)) or (hasRole('MANAGER') and @accessControlService.isKpiVisibleToManager(#id))")
     public ResponseEntity<KpiResponse> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
