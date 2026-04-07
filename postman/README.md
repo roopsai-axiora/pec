@@ -9,6 +9,7 @@ Scenario:
 - `Manager Two` owns `2` employees
 - `Manager One` assigns `3` goals
 - `Manager Two` assigns `4` goals across `2` employees
+- `Admin` defines the active evaluation rules used across the organization
 - all KPI submissions are performed by the respective employees
 - evaluations are run by the responsible manager
 
@@ -81,10 +82,10 @@ Files:
 24. `Goals / M2 Create Goal Five For Employee Four`
 25. `Goals / M2 Create Goal Six For Employee Five`
 26. `Goals / M2 Create Goal Seven For Employee Five`
-27. `Rules / Create High Achiever Rule`
-28. `Rules / Create Consistent Performer Rule`
-29. `Rules / Create At Risk Rule`
-30. `Rules / Get Active Rules`
+27. `Rules / Create High Achiever Rule` using `adminToken`
+28. `Rules / Create Consistent Performer Rule` using `adminToken`
+29. `Rules / Create At Risk Rule` using `adminToken`
+30. `Rules / Get Active Rules` using `adminToken`
 31. `KPIs / Employee One Submit KPI`
 32. `KPIs / Employee Two Submit KPI`
 33. `KPIs / Employee Three Submit KPI`
@@ -154,5 +155,6 @@ Goal and evaluation IDs are automatically captured from their respective create/
 - This collection assumes a clean or controlled local dataset.
 - The first admin registration is intentionally the bootstrap account.
 - All later account creation is done by admin using the current API rules.
+- All rule creation and rule lookup is now performed by admin.
 - Manager one owns the application delivery team.
 - Manager two owns the customer support team.
