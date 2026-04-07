@@ -155,6 +155,75 @@ class AccessControlServiceTest {
     }
 
     @Test
+    void shouldCheckGoalCreatorVisibility() {
+        User manager = managerUser(7L, "manager@axiora.com");
+        setAuthentication(manager, manager.getAuthorities());
+
+        when(goalRepository.existsByIdAndCreatedById(10L, 7L))
+                .thenReturn(true);
+        when(goalRepository.existsByIdAndCreatedById(11L, 7L))
+                .thenReturn(false);
+
+        assertTrue(accessControlService.isGoalCreator(10L));
+        assertFalse(accessControlService.isGoalCreator(11L));
+    }
+
+    @Test
+    void shouldCheckKpiManagerVisibility() {
+        User manager = managerUser(7L, "manager@axiora.com");
+        setAuthentication(manager, manager.getAuthorities());
+
+        when(kpiRepository.existsByIdAndGoalCreatedById(10L, 7L))
+                .thenReturn(true);
+        when(kpiRepository.existsByIdAndGoalCreatedById(11L, 7L))
+                .thenReturn(false);
+
+        assertTrue(accessControlService.isKpiVisibleToManager(10L));
+        assertFalse(accessControlService.isKpiVisibleToManager(11L));
+    }
+
+    @Test
+    void shouldCheckManagedEmployeeVisibility() {
+        User manager = managerUser(4L, "manager@axiora.com");
+        setAuthentication(manager, manager.getAuthorities());
+
+        User managedEmployee = domainUser(20L, "employee@axiora.com");
+        managedEmployee.setManager(manager);
+        User otherEmployee = domainUser(21L, "other@axiora.com");
+        otherEmployee.setManager(managerUser(99L, "other.manager@axiora.com"));
+
+        when(userRepository.findById(20L)).thenReturn(Optional.of(managedEmployee));
+        when(userRepository.findById(21L)).thenReturn(Optional.of(otherEmployee));
+        when(userRepository.findById(22L)).thenReturn(Optional.empty());
+
+        assertTrue(accessControlService.isManagedEmployee(20L));
+        assertFalse(accessControlService.isManagedEmployee(21L));
+        assertFalse(accessControlService.isManagedEmployee(22L));
+    }
+
+    @Test
+    void shouldCheckEvaluationVisibilityForManager() {
+        User manager = managerUser(4L, "manager@axiora.com");
+        setAuthentication(manager, manager.getAuthorities());
+
+        User managedEmployee = domainUser(30L, "employee@axiora.com");
+        managedEmployee.setManager(manager);
+        User otherEmployee = domainUser(31L, "other@axiora.com");
+        otherEmployee.setManager(managerUser(98L, "other.manager@axiora.com"));
+
+        EvaluationResult visible = EvaluationResult.builder().id(10L).user(managedEmployee).build();
+        EvaluationResult hidden = EvaluationResult.builder().id(11L).user(otherEmployee).build();
+
+        when(evaluationResultRepository.findById(10L)).thenReturn(Optional.of(visible));
+        when(evaluationResultRepository.findById(11L)).thenReturn(Optional.of(hidden));
+        when(evaluationResultRepository.findById(12L)).thenReturn(Optional.empty());
+
+        assertTrue(accessControlService.isEvaluationVisibleToManager(10L));
+        assertFalse(accessControlService.isEvaluationVisibleToManager(11L));
+        assertFalse(accessControlService.isEvaluationVisibleToManager(12L));
+    }
+
+    @Test
     void shouldReturnFalseWhenPrincipalIsAnonymousString() {
         setAuthentication("anonymousUser", List.of());
 
@@ -181,5 +250,14 @@ class AccessControlServiceTest {
                 .role(Role.EMPLOYEE)
                 .build();
     }
-}
 
+    private User managerUser(Long id, String email) {
+        return User.builder()
+                .id(id)
+                .email(email)
+                .fullName("Manager")
+                .password("secret")
+                .role(Role.MANAGER)
+                .build();
+    }
+}
