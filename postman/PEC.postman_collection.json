@@ -21,7 +21,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Axiora Admin\",\n  \"email\": \"admin@axiora.com\",\n  \"password\": \"password123\",\n  \"role\": \"ADMIN\"\n}"
+              "raw": "{\n  \"fullName\": \"{{adminName}}\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"ADMIN\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -37,7 +37,7 @@
           }
         },
         {
-          "name": "Register Manager",
+          "name": "Register Manager One",
           "request": {
             "method": "POST",
             "header": [
@@ -48,7 +48,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"John Manager\",\n  \"email\": \"john.manager@axiora.com\",\n  \"password\": \"password123\",\n  \"role\": \"MANAGER\"\n}"
+              "raw": "{\n  \"fullName\": \"{{managerOneName}}\",\n  \"email\": \"{{managerOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"MANAGER\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -64,7 +64,7 @@
           }
         },
         {
-          "name": "Register Employee",
+          "name": "Register Manager Two",
           "request": {
             "method": "POST",
             "header": [
@@ -75,7 +75,61 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Jane Employee\",\n  \"email\": \"jane.employee@axiora.com\",\n  \"password\": \"password123\",\n  \"role\": \"EMPLOYEE\"\n}"
+              "raw": "{\n  \"fullName\": \"{{managerTwoName}}\",\n  \"email\": \"{{managerTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"MANAGER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Employee One",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeOneName}}\",\n  \"email\": \"{{employeeOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Employee Two",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeTwoName}}\",\n  \"email\": \"{{employeeTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -114,7 +168,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@axiora.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -130,7 +184,7 @@
           }
         },
         {
-          "name": "Login Manager",
+          "name": "Login Manager One",
           "event": [
             {
               "listen": "test",
@@ -153,7 +207,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"john.manager@axiora.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"{{managerOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -169,7 +223,46 @@
           }
         },
         {
-          "name": "Login Employee",
+          "name": "Login Manager Two",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('managerTwoToken', data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{managerTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Employee One",
           "event": [
             {
               "listen": "test",
@@ -192,7 +285,46 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"jane.employee@axiora.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"{{employeeOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Employee Two",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('employeeTwoToken', data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{employeeTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -237,7 +369,7 @@
       "name": "Goals",
       "item": [
         {
-          "name": "Create Goal For Employee",
+          "name": "Create Goal For Employee One",
           "event": [
             {
               "listen": "test",
@@ -265,6 +397,48 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Improve Code Quality\",\n  \"description\": \"Increase test coverage to 80%\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "goals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Goal For Employee Two",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('goalTwoId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerTwoToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Deliver Sprint Commitments\",\n  \"description\": \"Complete assigned sprint tasks on time\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeTwoId}}\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/goals",
@@ -500,6 +674,30 @@
           }
         },
         {
+          "name": "Manager Get KPIs By User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis/user/{{employeeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis",
+                "user",
+                "{{employeeId}}"
+              ]
+            }
+          }
+        },
+        {
           "name": "Get KPIs By Goal",
           "request": {
             "method": "GET",
@@ -507,6 +705,30 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{employeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis/goal/{{goalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis",
+                "goal",
+                "{{goalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Manager Get KPIs By Goal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
               }
             ],
             "url": {
