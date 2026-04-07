@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -168,6 +169,34 @@ class EvaluationServiceTest {
         assertEquals(EvaluationStatus.COMPLETED,
                 response.status());
         assertFalse(response.disqualified());
+        verify(evaluationRepository, times(1)).save(any());
+    }
+
+    @Test
+    void shouldRunEvaluationWithinTwoSecondsPerUser() {
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(testUser));
+        when(ruleRepository
+                .findByActiveTrueOrderByPriorityAsc())
+                .thenReturn(List.of(testRule));
+        when(goalRepository
+                .findByAssignedToIdAndPeriod(1L, "2026-Q1"))
+                .thenReturn(List.of(testGoal));
+        when(kpiRepository.findByGoalIdAndPeriod(1L, "2026-Q1"))
+                .thenReturn(Optional.of(testKpi));
+        when(evaluationRepository
+                .findByUserAndEvalPeriod(any(), any()))
+                .thenReturn(Optional.empty());
+        when(evaluationRepository.save(any()))
+                .thenReturn(testResult);
+
+        EvaluationResponse response = assertTimeout(
+                Duration.ofSeconds(2),
+                () -> evaluationService.evaluate(request)
+        );
+
+        assertNotNull(response);
+        assertEquals(1L, response.userId());
         verify(evaluationRepository, times(1)).save(any());
     }
 
