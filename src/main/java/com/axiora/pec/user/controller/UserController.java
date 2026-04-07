@@ -29,11 +29,14 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
             @Valid @RequestBody RegisterRequest request,
-            @AuthenticationPrincipal(expression = "id") Long currentUserId,
+            @AuthenticationPrincipal Object principal,
             Authentication authentication) {
         Authentication resolvedAuthentication = authentication != null
                 ? authentication
                 : SecurityContextHolder.getContext().getAuthentication();
+        Long currentUserId = principal instanceof AuthenticatedUserPrincipal authenticatedUser
+                ? authenticatedUser.id()
+                : null;
         boolean isAdmin = resolvedAuthentication != null
                 && resolvedAuthentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
