@@ -21,7 +21,7 @@ public class RuleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RuleResponse> create(
             @Valid @RequestBody RuleRequest request) {
         return ResponseEntity.ok(
@@ -30,7 +30,7 @@ public class RuleController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RuleResponse>> getAll() {
         return ResponseEntity.ok(
                 ruleService.getAll()
@@ -38,7 +38,7 @@ public class RuleController {
     }
 
     @GetMapping("/active")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RuleResponse>> getActive() {
         return ResponseEntity.ok(
                 ruleService.getActiveRules()
@@ -46,7 +46,7 @@ public class RuleController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RuleResponse> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
@@ -55,7 +55,7 @@ public class RuleController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RuleResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody RuleRequest request) {
@@ -65,7 +65,7 @@ public class RuleController {
     }
 
     @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> activate(
             @PathVariable Long id) {
         ruleService.activate(id);
@@ -73,7 +73,7 @@ public class RuleController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deactivate(
             @PathVariable Long id) {
         ruleService.deactivate(id);
