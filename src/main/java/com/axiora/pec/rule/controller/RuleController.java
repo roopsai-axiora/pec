@@ -5,6 +5,7 @@ import com.axiora.pec.rule.dto.RuleResponse;
 import com.axiora.pec.rule.service.RuleService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class RuleController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<RuleResponse> create(
             @Valid @RequestBody RuleRequest request) {
         return ResponseEntity.ok(
@@ -28,6 +30,7 @@ public class RuleController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<RuleResponse>> getAll() {
         return ResponseEntity.ok(
                 ruleService.getAll()
@@ -35,6 +38,7 @@ public class RuleController {
     }
 
     @GetMapping("/active")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<RuleResponse>> getActive() {
         return ResponseEntity.ok(
                 ruleService.getActiveRules()
@@ -42,6 +46,7 @@ public class RuleController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<RuleResponse> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
@@ -50,6 +55,7 @@ public class RuleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<RuleResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody RuleRequest request) {
@@ -59,6 +65,7 @@ public class RuleController {
     }
 
     @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> activate(
             @PathVariable Long id) {
         ruleService.activate(id);
@@ -66,6 +73,7 @@ public class RuleController {
     }
 
     @PatchMapping("/{id}/deactivate")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> deactivate(
             @PathVariable Long id) {
         ruleService.deactivate(id);
