@@ -18,5 +18,7 @@ public record RegisterRequest(
         String password,
 
         @NotNull
-        Role role
+        Role role,
+
+        Long managerId
 ){}

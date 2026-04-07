@@ -18,6 +18,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByRoleAndActiveTrueOrderByFullNameAsc(Role role);
 
+    List<User> findByRoleAndActiveTrueAndManagerIdOrderByFullNameAsc(
+            Role role, Long managerId);
+
     @Query("""
             SELECT u FROM User u
             WHERE u.role = :role
@@ -29,4 +32,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
             ORDER BY u.fullName ASC
             """)
     List<User> searchActiveUsersByRole(Role role, String search);
+
+    @Query("""
+            SELECT u FROM User u
+            WHERE u.role = :role
+              AND u.active = true
+              AND u.manager.id = :managerId
+              AND (
+                    LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+                    OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                  )
+            ORDER BY u.fullName ASC
+            """)
+    List<User> searchActiveUsersByRoleAndManagerId(
+            Role role, Long managerId, String search);
 }

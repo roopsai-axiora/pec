@@ -10,6 +10,7 @@ import com.axiora.pec.goal.mapper.GoalMapper;
 import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.domain.User;
 import com.axiora.pec.user.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,19 @@ public class GoalService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Creator not found: "
                                 + createdById));
+
+        if (assignedTo.getRole() != com.axiora.pec.user.domain.Role.EMPLOYEE) {
+            throw new IllegalArgumentException(
+                    "Goals can only be assigned to employee accounts"
+            );
+        }
+
+        if (assignedTo.getManager() == null
+                || !assignedTo.getManager().getId().equals(createdById)) {
+            throw new AccessDeniedException(
+                    "Managers can create goals only for employees assigned to them"
+            );
+        }
 
         // Validate total weightage does not exceed 100
         BigDecimal existing = goalRepository

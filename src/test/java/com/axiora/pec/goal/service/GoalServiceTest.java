@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -46,17 +47,27 @@ class GoalServiceTest {
     private GoalService goalService;
 
     private User testUser;
+    private User managerUser;
     private Goal testGoal;
     private GoalRequest goalRequest;
 
     @BeforeEach
     void setUp() {
-        testUser = User.builder()
+        managerUser = User.builder()
                 .id(1L)
+                .fullName("Manager One")
+                .email("manager.one@axiora.com")
+                .password("hashedPassword")
+                .role(Role.MANAGER)
+                .build();
+
+        testUser = User.builder()
+                .id(2L)
                 .fullName("Roop Sai")
                 .email("roop@axiora.com")
                 .password("hashedPassword")
-                .role(Role.ADMIN)
+                .role(Role.EMPLOYEE)
+                .manager(managerUser)
                 .build();
 
         testGoal = Goal.builder()
@@ -67,7 +78,7 @@ class GoalServiceTest {
                 .period("2026-Q1")
                 .status(GoalStatus.ACTIVE)
                 .assignedTo(testUser)
-                .createdBy(testUser)
+                .createdBy(managerUser)
                 .build();
 
         goalRequest = new GoalRequest(
@@ -75,7 +86,7 @@ class GoalServiceTest {
                 "Increase test coverage",
                 new BigDecimal("30.00"),
                 "2026-Q1",
-                1L
+                2L
         );
 
         lenient().when(goalMapper.toResponse(any()))
@@ -95,6 +106,8 @@ class GoalServiceTest {
     @Test
     void shouldCreateGoalSuccessfully() {
         when(userRepository.findById(1L))
+                .thenReturn(Optional.of(managerUser));
+        when(userRepository.findById(2L))
                 .thenReturn(Optional.of(testUser));
         when(goalRepository.sumWeightageByUserAndPeriod(
                 any(), any()))
@@ -115,6 +128,8 @@ class GoalServiceTest {
     @Test
     void shouldThrowExceptionWhenWeightageExceeds100() {
         when(userRepository.findById(1L))
+                .thenReturn(Optional.of(managerUser));
+        when(userRepository.findById(2L))
                 .thenReturn(Optional.of(testUser));
         when(goalRepository.sumWeightageByUserAndPeriod(
                 any(), any()))
@@ -124,6 +139,40 @@ class GoalServiceTest {
                 () -> goalService.create(goalRequest, 1L));
 
         verify(goalRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldRejectGoalCreationForEmployeeManagedByAnotherManager() {
+        User otherManager = User.builder()
+                .id(99L)
+                .fullName("Other Manager")
+                .email("other.manager@axiora.com")
+                .password("hashedPassword")
+                .role(Role.MANAGER)
+                .build();
+        User otherEmployee = User.builder()
+                .id(3L)
+                .fullName("Other Employee")
+                .email("other.employee@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .manager(otherManager)
+                .build();
+        GoalRequest otherGoalRequest = new GoalRequest(
+                "Improve Code Quality",
+                "Increase test coverage",
+                new BigDecimal("30.00"),
+                "2026-Q1",
+                3L
+        );
+
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(managerUser));
+        when(userRepository.findById(3L))
+                .thenReturn(Optional.of(otherEmployee));
+
+        assertThrows(AccessDeniedException.class,
+                () -> goalService.create(otherGoalRequest, 1L));
     }
 
     @Test
@@ -149,11 +198,11 @@ class GoalServiceTest {
 
     @Test
     void shouldGetGoalsByUser() {
-        when(goalRepository.findByAssignedToId(1L))
+        when(goalRepository.findByAssignedToId(2L))
                 .thenReturn(List.of(testGoal));
 
         List<GoalResponse> goals =
-                goalService.getByUser(1L);
+                goalService.getByUser(2L);
 
         assertNotNull(goals);
         assertEquals(1, goals.size());

@@ -4,7 +4,6 @@ import com.axiora.pec.audit.AuditAction;
 import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
 import com.axiora.pec.common.exception.ResourceNotFoundException;
-import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.domain.Role;
@@ -17,6 +16,7 @@ import com.axiora.pec.user.mapper.UserMapper;
 import com.axiora.pec.user.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,6 @@ public class UserService {
     private final AuditService auditService;
     private final UserMapper userMapper;
     private final AuthCacheService authCacheService;
-    private final GoalRepository goalRepository;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -40,8 +39,7 @@ public class UserService {
                        AuthenticationManager authenticationManager,
                        AuditService auditService,
                        UserMapper userMapper,
-                       AuthCacheService authCacheService,
-                       GoalRepository goalRepository) {
+                       AuthCacheService authCacheService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -49,37 +47,51 @@ public class UserService {
         this.auditService = auditService;
         this.userMapper = userMapper;
         this.authCacheService = authCacheService;
-        this.goalRepository = goalRepository;
     }
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(
+            RegisterRequest request,
+            Long actorUserId,
+            boolean actorIsAdmin) {
 
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
+
+        validateRegistrationAccess(request, actorIsAdmin);
+        User manager = resolveManager(request);
 
         User user = User.builder()
                 .fullName(request.fullName())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .role(request.role())
+                .manager(manager)
                 .build();
 
         userRepository.save(user);
         authCacheService.put(user);
         auditService.log(
                 AuditAction.USER_REGISTERED,
-                user.getId(),
+                actorUserId != null ? actorUserId : user.getId(),
                 "User",
                 user.getId(),
                 "User registered: " + user.getEmail()
         );
 
-        String token = jwtUtil.generateToken(user);
+        if (isBootstrapAdminCreation(actorIsAdmin) && request.role() == Role.ADMIN) {
+            String token = jwtUtil.generateToken(user);
+            AuthResponse response = userMapper.toAuthResponse(user);
+            return new AuthResponse(
+                    token,
+                    response.email(),
+                    response.role()
+            );
+        }
 
         AuthResponse response = userMapper.toAuthResponse(user);
         return new AuthResponse(
-                token,
+                null,
                 response.email(),
                 response.role()
         );
@@ -146,10 +158,10 @@ public class UserService {
                     : userRepository.searchActiveUsersByRole(Role.EMPLOYEE, normalizedSearch);
         } else {
             employees = (normalizedSearch == null || normalizedSearch.isBlank())
-                    ? goalRepository.findDistinctActiveEmployeesByCreatedByIdOrderByAssignedToFullNameAsc(
-                    managerId)
-                    : goalRepository.searchDistinctActiveEmployeesByCreatedById(
-                    managerId, normalizedSearch);
+                    ? userRepository.findByRoleAndActiveTrueAndManagerIdOrderByFullNameAsc(
+                    Role.EMPLOYEE, managerId)
+                    : userRepository.searchActiveUsersByRoleAndManagerId(
+                    Role.EMPLOYEE, managerId, normalizedSearch);
         }
 
         return employees.stream()
@@ -161,5 +173,59 @@ public class UserService {
                         user.isActive()
                 ))
                 .toList();
+    }
+
+    private void validateRegistrationAccess(
+            RegisterRequest request,
+            boolean actorIsAdmin) {
+        if (isBootstrapAdminCreation(actorIsAdmin)) {
+            if (request.role() != Role.ADMIN) {
+                throw new AccessDeniedException(
+                        "The first account in the system must be an admin account"
+                );
+            }
+            return;
+        }
+
+        if (!actorIsAdmin) {
+            throw new AccessDeniedException(
+                    "Only admins can create user accounts"
+            );
+        }
+    }
+
+    private boolean isBootstrapAdminCreation(boolean actorIsAdmin) {
+        return !actorIsAdmin && userRepository.count() == 0;
+    }
+
+    private User resolveManager(RegisterRequest request) {
+        if (request.role() == Role.EMPLOYEE) {
+            if (request.managerId() == null) {
+                throw new IllegalArgumentException(
+                        "managerId is required when creating an employee account"
+                );
+            }
+
+            User manager = userRepository.findById(request.managerId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Manager not found", request.managerId()
+                    ));
+
+            if (manager.getRole() != Role.MANAGER || !manager.isActive()) {
+                throw new IllegalArgumentException(
+                        "managerId must reference an active manager"
+                );
+            }
+
+            return manager;
+        }
+
+        if (request.managerId() != null) {
+            throw new IllegalArgumentException(
+                    "managerId is only allowed when creating an employee account"
+            );
+        }
+
+        return null;
     }
 }

@@ -34,6 +34,17 @@ public class AccessControlService {
         return currentUserId != null && currentUserId.equals(userId);
     }
 
+    public boolean isManagedEmployee(Long userId) {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            return false;
+        }
+        return userRepository.findById(userId)
+                .map(user -> user.getManager() != null
+                        && user.getManager().getId().equals(currentUserId))
+                .orElse(false);
+    }
+
     public boolean isGoalOwner(Long goalId) {
         Long currentUserId = getCurrentUserId();
         if (currentUserId == null) {
@@ -77,6 +88,17 @@ public class AccessControlService {
         }
         return evaluationResultRepository.findById(evaluationId)
                 .map(result -> result.getUser().getId().equals(currentUserId))
+                .orElse(false);
+    }
+
+    public boolean isEvaluationVisibleToManager(Long evaluationId) {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            return false;
+        }
+        return evaluationResultRepository.findById(evaluationId)
+                .map(result -> result.getUser().getManager() != null
+                        && result.getUser().getManager().getId().equals(currentUserId))
                 .orElse(false);
     }
 

@@ -40,6 +40,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id")
+    private User manager;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;

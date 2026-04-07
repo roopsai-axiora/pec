@@ -24,6 +24,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,7 +62,8 @@ class UserControllerTest {
                 "Roop Sai",
                 "roop@axiora.com",
                 "password123",
-                Role.ADMIN
+                Role.ADMIN,
+                null
         );
 
         AuthResponse response = new AuthResponse(
@@ -70,7 +72,7 @@ class UserControllerTest {
                 "ADMIN"
         );
 
-        when(userService.register(any()))
+        when(userService.register(any(), any(), anyBoolean()))
                 .thenReturn(response);
 
         mockMvc.perform(post("/api/auth/register")
@@ -118,6 +120,7 @@ class UserControllerTest {
                 "",
                 "invalid-email",
                 "",
+                null,
                 null
         );
 

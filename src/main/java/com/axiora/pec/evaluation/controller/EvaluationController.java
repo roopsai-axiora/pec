@@ -28,7 +28,7 @@ public class EvaluationController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER') and @accessControlService.isManagedEmployee(#request.userId)")
     public ResponseEntity<EvaluationResponse> evaluate(
             @Valid @RequestBody EvaluationRequest request) {
         return ResponseEntity.ok(
@@ -55,7 +55,7 @@ public class EvaluationController {
     }
 
     @GetMapping(value = "/{id}/scorecard", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasRole('MANAGER') or (hasRole('EMPLOYEE') and @accessControlService.isEvaluationOwner(#id))")
+    @PreAuthorize("(hasRole('MANAGER') and @accessControlService.isEvaluationVisibleToManager(#id)) or (hasRole('EMPLOYEE') and @accessControlService.isEvaluationOwner(#id))")
     public ResponseEntity<byte[]> downloadScorecard(
             @PathVariable Long id) {
         EvaluationResponse evaluation = evaluationService.getById(id);

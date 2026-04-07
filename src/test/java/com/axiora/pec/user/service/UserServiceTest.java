@@ -2,7 +2,6 @@ package com.axiora.pec.user.service;
 
 import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
-import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.domain.Role;
@@ -21,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -54,9 +54,6 @@ class UserServiceTest {
     @Mock
     private AuthCacheService authCacheService;
 
-    @Mock
-    private GoalRepository goalRepository;
-
     @InjectMocks
     private UserService userService;
 
@@ -78,7 +75,8 @@ class UserServiceTest {
                 "Roop Sai",
                 "roop@axiora.com",
                 "password123",
-                Role.ADMIN
+                Role.ADMIN,
+                null
         );
 
         loginRequest = new LoginRequest(
@@ -87,17 +85,22 @@ class UserServiceTest {
         );
 
         lenient().when(userMapper.toAuthResponse(any()))
-                .thenReturn(new AuthResponse(
-                        null,
-                        "roop@axiora.com",
-                        "ADMIN"
-                ));
+                .thenAnswer(invocation -> {
+                    User user = invocation.getArgument(0);
+                    return new AuthResponse(
+                            null,
+                            user.getEmail(),
+                            user.getRole().name()
+                    );
+                });
     }
 
     @Test
     void shouldRegisterUserSuccessfully() {
         when(userRepository.existsByEmail(any()))
                 .thenReturn(false);
+        when(userRepository.count())
+                .thenReturn(0L);
         when(passwordEncoder.encode(any()))
                 .thenReturn("hashedPassword");
         when(userRepository.save(any()))
@@ -106,7 +109,7 @@ class UserServiceTest {
                 .thenReturn("token123");
 
         AuthResponse response =
-                userService.register(registerRequest);
+                userService.register(registerRequest, null, false);
 
         assertNotNull(response);
         assertEquals("token123", response.token());
@@ -122,9 +125,62 @@ class UserServiceTest {
                 .thenReturn(true);
 
         assertThrows(EmailAlreadyExistsException.class,
-                () -> userService.register(registerRequest));
+                () -> userService.register(registerRequest, null, false));
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldRequireAdminForNonBootstrapRegistration() {
+        when(userRepository.existsByEmail(any()))
+                .thenReturn(false);
+        when(userRepository.count())
+                .thenReturn(2L);
+
+        assertThrows(AccessDeniedException.class,
+                () -> userService.register(registerRequest, null, false));
+    }
+
+    @Test
+    void shouldAllowAdminToCreateEmployeeWithManagerAssignment() {
+        User manager = User.builder()
+                .id(9L)
+                .fullName("Manager One")
+                .email("manager.one@axiora.com")
+                .password("hashedPassword")
+                .role(Role.MANAGER)
+                .active(true)
+                .build();
+        RegisterRequest employeeRequest = new RegisterRequest(
+                "Jane Employee",
+                "jane.employee@axiora.com",
+                "password123",
+                Role.EMPLOYEE,
+                9L
+        );
+        User employee = User.builder()
+                .id(10L)
+                .fullName("Jane Employee")
+                .email("jane.employee@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .manager(manager)
+                .active(true)
+                .build();
+
+        when(userRepository.existsByEmail(employeeRequest.email()))
+                .thenReturn(false);
+        when(userRepository.findById(9L))
+                .thenReturn(Optional.of(manager));
+        when(passwordEncoder.encode(any()))
+                .thenReturn("hashedPassword");
+        when(userRepository.save(any()))
+                .thenReturn(employee);
+        AuthResponse response = userService.register(employeeRequest, 1L, true);
+
+        assertNull(response.token());
+        assertEquals("jane.employee@axiora.com", response.email());
+        verify(authCacheService).put(any(User.class));
     }
 
     @Test
@@ -210,15 +266,14 @@ class UserServiceTest {
                 .role(Role.EMPLOYEE)
                 .active(true)
                 .build();
-        when(goalRepository.findDistinctActiveEmployeesByCreatedByIdOrderByAssignedToFullNameAsc(7L))
+        when(userRepository.findByRoleAndActiveTrueAndManagerIdOrderByFullNameAsc(Role.EMPLOYEE, 7L))
                 .thenReturn(List.of(employee));
 
         List<UserSummaryResponse> responses = userService.getEmployees(null, 7L, false);
 
         assertEquals(1, responses.size());
         assertEquals(5L, responses.getFirst().id());
-        verify(goalRepository).findDistinctActiveEmployeesByCreatedByIdOrderByAssignedToFullNameAsc(7L);
-        verifyNoInteractions(userRepository);
+        verify(userRepository).findByRoleAndActiveTrueAndManagerIdOrderByFullNameAsc(Role.EMPLOYEE, 7L);
     }
 
     @Test
@@ -231,14 +286,13 @@ class UserServiceTest {
                 .role(Role.EMPLOYEE)
                 .active(true)
                 .build();
-        when(goalRepository.searchDistinctActiveEmployeesByCreatedById(8L, "john"))
+        when(userRepository.searchActiveUsersByRoleAndManagerId(Role.EMPLOYEE, 8L, "john"))
                 .thenReturn(List.of(employee));
 
         List<UserSummaryResponse> responses = userService.getEmployees(" john ", 8L, false);
 
         assertEquals(1, responses.size());
         assertEquals("Scoped John", responses.getFirst().fullName());
-        verify(goalRepository).searchDistinctActiveEmployeesByCreatedById(8L, "john");
-        verifyNoInteractions(userRepository);
+        verify(userRepository).searchActiveUsersByRoleAndManagerId(Role.EMPLOYEE, 8L, "john");
     }
 }
