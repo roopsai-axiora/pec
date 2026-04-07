@@ -215,7 +215,7 @@ public class EvaluationService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "EvaluationResult", id));
-        return toResponse(result, List.of());
+        return toResponse(result, parseRuleTrace(result.getRuleTrace()));
     }
 
     public List<EvaluationResponse> getByUser(Long userId) {
@@ -227,7 +227,7 @@ public class EvaluationService {
         return evaluationRepository
                 .findByUserOrderByEvaluatedAtDesc(user)
                 .stream()
-                .map(r -> toResponse(r, List.of()))
+                .map(r -> toResponse(r, parseRuleTrace(r.getRuleTrace())))
                 .toList();
     }
 
@@ -239,6 +239,20 @@ public class EvaluationService {
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize rule trace", e);
             return "[]";
+        }
+    }
+
+    private List<GoalScoreDetail> parseRuleTrace(String ruleTrace) {
+        if (ruleTrace == null || ruleTrace.isBlank()) {
+            return List.of();
+        }
+
+        try {
+            return objectMapper.readerForListOf(GoalScoreDetail.class)
+                    .readValue(ruleTrace);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to deserialize rule trace", e);
+            return List.of();
         }
     }
 

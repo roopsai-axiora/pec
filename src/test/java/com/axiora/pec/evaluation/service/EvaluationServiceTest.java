@@ -137,6 +137,22 @@ class EvaluationServiceTest {
                 .finalScore(new BigDecimal("100.00"))
                 .status(EvaluationStatus.COMPLETED)
                 .disqualified(false)
+                .ruleTrace("""
+                        [
+                          {
+                            "goalId": 1,
+                            "goalTitle": "Improve Code Quality",
+                            "weightage": 100.00,
+                            "targetValue": 100.00,
+                            "actualValue": 95.00,
+                            "achievementPercent": 95.00,
+                            "score": 105.00,
+                            "disqualified": false,
+                            "matchedRule": "High Achiever",
+                            "ruleAction": "ADD"
+                          }
+                        ]
+                        """)
                 .build();
 
         request = new EvaluationRequest(1L, "2026-Q1");
@@ -311,6 +327,9 @@ class EvaluationServiceTest {
 
         assertNotNull(response);
         assertEquals(1L, response.id());
+        assertEquals(1, response.goalDetails().size());
+        assertEquals("Improve Code Quality",
+                response.goalDetails().getFirst().goalTitle());
     }
 
     @Test
@@ -335,5 +354,6 @@ class EvaluationServiceTest {
 
         assertNotNull(responses);
         assertEquals(1, responses.size());
+        assertEquals(1, responses.getFirst().goalDetails().size());
     }
 }
