@@ -1,5 +1,6 @@
 package com.axiora.pec.user.controller;
 
+import com.axiora.pec.user.auth.AuthenticatedUserPrincipal;
 import com.axiora.pec.user.domain.Role;
 import com.axiora.pec.user.dto.AuthResponse;
 import com.axiora.pec.user.dto.LoginRequest;
@@ -14,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -133,7 +136,7 @@ class UserControllerTest {
 
     @Test
     void shouldGetEmployees() throws Exception {
-        when(userService.getEmployees(eq("jane")))
+        when(userService.getEmployees(eq("jane"), eq(10L), eq(false)))
                 .thenReturn(List.of(
                         new UserSummaryResponse(
                                 3L,
@@ -144,13 +147,31 @@ class UserControllerTest {
                         )
                 ));
 
-        mockMvc.perform(get("/api/auth/employees")
-                        .param("search", "jane"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].fullName").value("Jane Employee"))
-                .andExpect(jsonPath("$[0].email").value("jane.employee@axiora.com"))
-                .andExpect(jsonPath("$[0].role").value("EMPLOYEE"))
-                .andExpect(jsonPath("$[0].active").value(true));
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new AuthenticatedUserPrincipal(
+                                10L,
+                                "Manager One",
+                                "manager@axiora.com",
+                                Role.MANAGER,
+                                true
+                        ),
+                        "password",
+                        List.of()
+                )
+        );
+
+        try {
+            mockMvc.perform(get("/api/auth/employees")
+                            .param("search", "jane"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].id").value(3))
+                    .andExpect(jsonPath("$[0].fullName").value("Jane Employee"))
+                    .andExpect(jsonPath("$[0].email").value("jane.employee@axiora.com"))
+                    .andExpect(jsonPath("$[0].role").value("EMPLOYEE"))
+                    .andExpect(jsonPath("$[0].active").value(true));
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 }

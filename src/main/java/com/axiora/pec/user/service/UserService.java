@@ -4,6 +4,7 @@ import com.axiora.pec.audit.AuditAction;
 import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
 import com.axiora.pec.common.exception.ResourceNotFoundException;
+import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.domain.Role;
@@ -31,6 +32,7 @@ public class UserService {
     private final AuditService auditService;
     private final UserMapper userMapper;
     private final AuthCacheService authCacheService;
+    private final GoalRepository goalRepository;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -38,7 +40,8 @@ public class UserService {
                        AuthenticationManager authenticationManager,
                        AuditService auditService,
                        UserMapper userMapper,
-                       AuthCacheService authCacheService) {
+                       AuthCacheService authCacheService,
+                       GoalRepository goalRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -46,6 +49,7 @@ public class UserService {
         this.auditService = auditService;
         this.userMapper = userMapper;
         this.authCacheService = authCacheService;
+        this.goalRepository = goalRepository;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -131,10 +135,22 @@ public class UserService {
         );
     }
 
-    public List<UserSummaryResponse> getEmployees(String search) {
-        List<User> employees = (search == null || search.isBlank())
-                ? userRepository.findByRoleAndActiveTrueOrderByFullNameAsc(Role.EMPLOYEE)
-                : userRepository.searchActiveUsersByRole(Role.EMPLOYEE, search.trim());
+    public List<UserSummaryResponse> getEmployees(
+            String search, Long managerId, boolean isAdmin) {
+        String normalizedSearch = search == null ? null : search.trim();
+        List<User> employees;
+
+        if (isAdmin) {
+            employees = (normalizedSearch == null || normalizedSearch.isBlank())
+                    ? userRepository.findByRoleAndActiveTrueOrderByFullNameAsc(Role.EMPLOYEE)
+                    : userRepository.searchActiveUsersByRole(Role.EMPLOYEE, normalizedSearch);
+        } else {
+            employees = (normalizedSearch == null || normalizedSearch.isBlank())
+                    ? goalRepository.findDistinctActiveEmployeesByCreatedByIdOrderByAssignedToFullNameAsc(
+                    managerId)
+                    : goalRepository.searchDistinctActiveEmployeesByCreatedById(
+                    managerId, normalizedSearch);
+        }
 
         return employees.stream()
                 .map(user -> new UserSummaryResponse(

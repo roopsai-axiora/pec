@@ -2,6 +2,7 @@ package com.axiora.pec.user.service;
 
 import com.axiora.pec.audit.AuditService;
 import com.axiora.pec.common.exception.EmailAlreadyExistsException;
+import com.axiora.pec.goal.repository.GoalRepository;
 import com.axiora.pec.user.auth.AuthCacheService;
 import com.axiora.pec.user.auth.JwtUtil;
 import com.axiora.pec.user.domain.Role;
@@ -52,6 +53,9 @@ class UserServiceTest {
 
     @Mock
     private AuthCacheService authCacheService;
+
+    @Mock
+    private GoalRepository goalRepository;
 
     @InjectMocks
     private UserService userService;
@@ -169,7 +173,7 @@ class UserServiceTest {
         when(userRepository.findByRoleAndActiveTrueOrderByFullNameAsc(Role.EMPLOYEE))
                 .thenReturn(List.of(employee));
 
-        List<UserSummaryResponse> responses = userService.getEmployees(null);
+        List<UserSummaryResponse> responses = userService.getEmployees(null, 99L, true);
 
         assertEquals(1, responses.size());
         assertEquals("Jane Employee", responses.getFirst().fullName());
@@ -189,10 +193,52 @@ class UserServiceTest {
         when(userRepository.searchActiveUsersByRole(Role.EMPLOYEE, "john"))
                 .thenReturn(List.of(employee));
 
-        List<UserSummaryResponse> responses = userService.getEmployees(" john ");
+        List<UserSummaryResponse> responses = userService.getEmployees(" john ", 99L, true);
 
         assertEquals(1, responses.size());
         assertEquals("john.employee@axiora.com", responses.getFirst().email());
         verify(userRepository).searchActiveUsersByRole(Role.EMPLOYEE, "john");
+    }
+
+    @Test
+    void shouldGetOnlyEmployeesAssignedToManager() {
+        User employee = User.builder()
+                .id(5L)
+                .fullName("Scoped Employee")
+                .email("scoped.employee@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .active(true)
+                .build();
+        when(goalRepository.findDistinctActiveEmployeesByCreatedByIdOrderByAssignedToFullNameAsc(7L))
+                .thenReturn(List.of(employee));
+
+        List<UserSummaryResponse> responses = userService.getEmployees(null, 7L, false);
+
+        assertEquals(1, responses.size());
+        assertEquals(5L, responses.getFirst().id());
+        verify(goalRepository).findDistinctActiveEmployeesByCreatedByIdOrderByAssignedToFullNameAsc(7L);
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void shouldSearchOnlyEmployeesAssignedToManager() {
+        User employee = User.builder()
+                .id(6L)
+                .fullName("Scoped John")
+                .email("scoped.john@axiora.com")
+                .password("hashedPassword")
+                .role(Role.EMPLOYEE)
+                .active(true)
+                .build();
+        when(goalRepository.searchDistinctActiveEmployeesByCreatedById(8L, "john"))
+                .thenReturn(List.of(employee));
+
+        List<UserSummaryResponse> responses = userService.getEmployees(" john ", 8L, false);
+
+        assertEquals(1, responses.size());
+        assertEquals("Scoped John", responses.getFirst().fullName());
+        verify(goalRepository).searchDistinctActiveEmployeesByCreatedById(8L, "john");
+        verifyNoInteractions(userRepository);
     }
 }
