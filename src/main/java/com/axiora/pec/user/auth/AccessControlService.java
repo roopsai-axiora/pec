@@ -44,6 +44,14 @@ public class AccessControlService {
                 .orElse(false);
     }
 
+    public boolean isGoalCreator(Long goalId) {
+        Long currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            return false;
+        }
+        return goalRepository.existsByIdAndCreatedById(goalId, currentUserId);
+    }
+
     public boolean isKpiOwner(Long kpiId) {
         Long currentUserId = getCurrentUserId();
         if (currentUserId == null) {

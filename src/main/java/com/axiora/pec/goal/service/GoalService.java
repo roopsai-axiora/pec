@@ -79,6 +79,16 @@ public class GoalService {
                 .toList();
     }
 
+    public List<GoalResponse> getByUserCreatedByManager(
+            Long userId, Long managerId) {
+        return goalRepository
+                .findByAssignedToIdAndCreatedByIdOrderByCreatedAtDesc(
+                        userId, managerId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public GoalResponse getById(Long id) {
         return toResponse(goalRepository.findById(id)
                 .orElseThrow(() ->

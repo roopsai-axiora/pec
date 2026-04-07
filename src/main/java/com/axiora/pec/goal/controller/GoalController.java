@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,16 +33,23 @@ public class GoalController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('EMPLOYEE') or hasRole('MANAGER')")
     public ResponseEntity<List<GoalResponse>> getByUser(
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal(expression = "id") Long currentUserId,
+            Authentication authentication) {
+        boolean isManager = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_MANAGER".equals(authority.getAuthority()));
+
         return ResponseEntity.ok(
-                goalService.getByUser(userId)
+                isManager
+                        ? goalService.getByUserCreatedByManager(userId, currentUserId)
+                        : goalService.getByUser(userId)
         );
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('EMPLOYEE') and @accessControlService.isGoalOwner(#id)")
+    @PreAuthorize("(hasRole('EMPLOYEE') and @accessControlService.isGoalOwner(#id)) or (hasRole('MANAGER') and @accessControlService.isGoalCreator(#id))")
     public ResponseEntity<GoalResponse> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
