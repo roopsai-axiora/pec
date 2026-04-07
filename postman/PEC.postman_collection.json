@@ -3,14 +3,14 @@
     "_postman_id": "eb7bdb16-5db2-4dad-bf3e-b638d4d2d520",
     "name": "PEC",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Postman collection for the Performance Evaluation Core API."
+    "description": "Postman collection for the Performance Evaluation Core API. This scenario models one admin, two managers, and five employees across application delivery and customer support teams."
   },
   "item": [
     {
       "name": "Auth",
       "item": [
         {
-          "name": "Register Admin",
+          "name": "Register Bootstrap Admin",
           "request": {
             "method": "POST",
             "header": [
@@ -21,115 +21,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"{{adminName}}\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"ADMIN\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Register Manager One",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"{{managerOneName}}\",\n  \"email\": \"{{managerOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"MANAGER\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Register Manager Two",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"{{managerTwoName}}\",\n  \"email\": \"{{managerTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"MANAGER\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Register Employee One",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"{{employeeOneName}}\",\n  \"email\": \"{{employeeOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Register Employee Two",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fullName\": \"{{employeeTwoName}}\",\n  \"email\": \"{{employeeTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\"\n}"
+              "raw": "{\n  \"fullName\": \"{{adminName}}\",\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"ADMIN\",\n  \"managerId\": null\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -184,6 +76,263 @@
           }
         },
         {
+          "name": "Register Manager One",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{managerOneName}}\",\n  \"email\": \"{{managerOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"MANAGER\",\n  \"managerId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Manager Two",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{managerTwoName}}\",\n  \"email\": \"{{managerTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"MANAGER\",\n  \"managerId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolve Manager IDs From Audit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "const byEmail = (email) => data.find(log => (log.details || '').includes(email));",
+                  "const managerOne = byEmail(pm.environment.get('managerOneEmail'));",
+                  "const managerTwo = byEmail(pm.environment.get('managerTwoEmail'));",
+                  "if (managerOne) pm.environment.set('managerOneId', managerOne.entityId);",
+                  "if (managerTwo) pm.environment.set('managerTwoId', managerTwo.entityId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit/action/USER_REGISTERED",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "audit",
+                "action",
+                "USER_REGISTERED"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Manager One Employee One",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeOneName}}\",\n  \"email\": \"{{employeeOneEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": {{managerOneId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Manager One Employee Two",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeTwoName}}\",\n  \"email\": \"{{employeeTwoEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": {{managerOneId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Manager One Employee Three",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeThreeName}}\",\n  \"email\": \"{{employeeThreeEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": {{managerOneId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Manager Two Employee One",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeFourName}}\",\n  \"email\": \"{{employeeFourEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": {{managerTwoId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Manager Two Employee Two",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{employeeFiveName}}\",\n  \"email\": \"{{employeeFiveEmail}}\",\n  \"password\": \"{{defaultPassword}}\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": {{managerTwoId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
           "name": "Login Manager One",
           "event": [
             {
@@ -191,7 +340,7 @@
               "script": {
                 "exec": [
                   "const data = pm.response.json();",
-                  "pm.environment.set('managerToken', data.token);"
+                  "pm.environment.set('managerOneToken', data.token);"
                 ],
                 "type": "text/javascript"
               }
@@ -269,7 +418,7 @@
               "script": {
                 "exec": [
                   "const data = pm.response.json();",
-                  "pm.environment.set('employeeToken', data.token);"
+                  "pm.environment.set('employeeOneToken', data.token);"
                 ],
                 "type": "text/javascript"
               }
@@ -340,25 +489,203 @@
           }
         },
         {
-          "name": "Deactivate User (Admin)",
+          "name": "Login Employee Three",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('employeeThreeToken', data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
-            "method": "PATCH",
+            "method": "POST",
             "header": [
               {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{employeeThreeEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/deactivate/{{employeeId}}",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "auth",
-                "deactivate",
-                "{{employeeId}}"
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Employee Four",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('employeeFourToken', data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{employeeFourEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Employee Five",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('employeeFiveToken', data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{employeeFiveEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Manager One Get Team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "const byEmail = (email) => data.find(user => user.email === email);",
+                  "const employeeOne = byEmail(pm.environment.get('employeeOneEmail'));",
+                  "const employeeTwo = byEmail(pm.environment.get('employeeTwoEmail'));",
+                  "const employeeThree = byEmail(pm.environment.get('employeeThreeEmail'));",
+                  "if (employeeOne) pm.environment.set('employeeOneId', employeeOne.id);",
+                  "if (employeeTwo) pm.environment.set('employeeTwoId', employeeTwo.id);",
+                  "if (employeeThree) pm.environment.set('employeeThreeId', employeeThree.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerOneToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/employees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "employees"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Manager Two Get Team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "const byEmail = (email) => data.find(user => user.email === email);",
+                  "const employeeFour = byEmail(pm.environment.get('employeeFourEmail'));",
+                  "const employeeFive = byEmail(pm.environment.get('employeeFiveEmail'));",
+                  "if (employeeFour) pm.environment.set('employeeFourId', employeeFour.id);",
+                  "if (employeeFive) pm.environment.set('employeeFiveId', employeeFive.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerTwoToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/employees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "employees"
               ]
             }
           }
@@ -369,14 +696,14 @@
       "name": "Goals",
       "item": [
         {
-          "name": "Create Goal For Employee One",
+          "name": "M1 Create Goal For Employee One",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "const data = pm.response.json();",
-                  "pm.environment.set('goalId', data.id);"
+                  "pm.environment.set('goalOneId', data.id);"
                 ],
                 "type": "text/javascript"
               }
@@ -391,12 +718,12 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Improve Code Quality\",\n  \"description\": \"Increase test coverage to 80%\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeId}}\n}"
+              "raw": "{\n  \"title\": \"Improve API Reliability\",\n  \"description\": \"Reduce production defects and increase automated API coverage for delivery services.\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeOneId}}\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/goals",
@@ -411,7 +738,7 @@
           }
         },
         {
-          "name": "Create Goal For Employee Two",
+          "name": "M1 Create Goal For Employee Two",
           "event": [
             {
               "listen": "test",
@@ -433,12 +760,12 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerTwoToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Deliver Sprint Commitments\",\n  \"description\": \"Complete assigned sprint tasks on time\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeTwoId}}\n}"
+              "raw": "{\n  \"title\": \"Automate Regression Coverage\",\n  \"description\": \"Increase regression automation for release-critical workflows in the delivery platform.\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeTwoId}}\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/goals",
@@ -453,105 +780,211 @@
           }
         },
         {
-          "name": "Get Goals By Employee",
+          "name": "M1 Create Goal For Employee Three",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('goalThreeId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
                 "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Reduce Incident Backlog\",\n  \"description\": \"Improve support queue discipline and clear level-one incident backlog for key applications.\",\n  \"weightage\": 100.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeThreeId}}\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/api/goals/user/{{employeeId}}",
+              "raw": "{{baseUrl}}/api/goals",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "goals",
-                "user",
-                "{{employeeId}}"
+                "goals"
               ]
             }
           }
         },
         {
-          "name": "Get Goal By Id",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
+          "name": "M2 Create Goal Four For Employee Four",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('goalFourId', data.id);"
+                ],
+                "type": "text/javascript"
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/goals/{{goalId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "goals",
-                "{{goalId}}"
-              ]
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Users",
-      "item": [
-        {
-          "name": "Get Employees",
+          ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerTwoToken}}"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Improve CSAT\",\n  \"description\": \"Lift customer satisfaction for voice and email support interactions.\",\n  \"weightage\": 50.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeFourId}}\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/employees",
+              "raw": "{{baseUrl}}/api/goals",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "auth",
-                "employees"
+                "goals"
               ]
             }
           }
         },
         {
-          "name": "Search Employees",
+          "name": "M2 Create Goal Five For Employee Four",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('goalFiveId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerTwoToken}}"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Reduce Average Handle Time\",\n  \"description\": \"Lower handle time without hurting customer experience or compliance.\",\n  \"weightage\": 50.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeFourId}}\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/employees?search=jane",
+              "raw": "{{baseUrl}}/api/goals",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "auth",
-                "employees"
+                "goals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "M2 Create Goal Six For Employee Five",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('goalSixId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerTwoToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Increase First Contact Resolution\",\n  \"description\": \"Resolve more customer requests on the first interaction across support channels.\",\n  \"weightage\": 50.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeFiveId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goals",
+              "host": [
+                "{{baseUrl}}"
               ],
-              "query": [
-                {
-                  "key": "search",
-                  "value": "jane"
-                }
+              "path": [
+                "api",
+                "goals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "M2 Create Goal Seven For Employee Five",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('goalSevenId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerTwoToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Improve Quality Compliance\",\n  \"description\": \"Increase internal QA audit adherence for customer support interactions.\",\n  \"weightage\": 50.00,\n  \"period\": \"{{period}}\",\n  \"assignedToId\": {{employeeFiveId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "goals"
               ]
             }
           }
@@ -572,12 +1005,72 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"High Achiever Bonus\",\n  \"description\": \"Achievement greater than 90%\",\n  \"operator\": \"GT\",\n  \"thresholdValue\": 90.00,\n  \"action\": \"ADD\",\n  \"actionValue\": 10.00,\n  \"priority\": 1\n}"
+              "raw": "{\n  \"name\": \"High Achiever Bonus\",\n  \"description\": \"Achievement above 90 percent receives a positive adjustment.\",\n  \"operator\": \"GT\",\n  \"thresholdValue\": 90.00,\n  \"thresholdValueUpper\": null,\n  \"action\": \"ADD\",\n  \"actionValue\": 10.00,\n  \"priority\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Consistent Performer Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerOneToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Consistent Performer\",\n  \"description\": \"Achievement between 75 and 90 percent stays neutral.\",\n  \"operator\": \"BETWEEN\",\n  \"thresholdValue\": 75.00,\n  \"thresholdValueUpper\": 90.00,\n  \"action\": \"MULTIPLY\",\n  \"actionValue\": 1.00,\n  \"priority\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create At Risk Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerOneToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"At Risk Performer\",\n  \"description\": \"Achievement below 60 percent is penalized.\",\n  \"operator\": \"LT\",\n  \"thresholdValue\": 60.00,\n  \"thresholdValueUpper\": null,\n  \"action\": \"MULTIPLY\",\n  \"actionValue\": 0.75,\n  \"priority\": 3\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/rules",
@@ -598,7 +1091,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
             "url": {
@@ -620,7 +1113,7 @@
       "name": "KPIs",
       "item": [
         {
-          "name": "Submit KPI For Goal",
+          "name": "Employee One Submit KPI",
           "request": {
             "method": "POST",
             "header": [
@@ -630,12 +1123,12 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
+                "value": "Bearer {{employeeOneToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"goalId\": {{goalId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 95.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"Great progress on test coverage\"\n}"
+              "raw": "{\n  \"goalId\": {{goalOneId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 94.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"API reliability defects reduced across core delivery services.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/kpis",
@@ -650,17 +1143,197 @@
           }
         },
         {
-          "name": "Get KPIs By User",
+          "name": "Employee Two Submit KPI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeTwoToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goalId\": {{goalTwoId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 88.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"Regression coverage increased for release candidate test packs.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Employee Three Submit KPI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeThreeToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goalId\": {{goalThreeId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 82.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"Incident backlog reduced for critical application queues.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Employee Four Submit KPI For Goal Four",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeFourToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goalId\": {{goalFourId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 91.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"Customer satisfaction improved for email and voice support queues.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Employee Four Submit KPI For Goal Five",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeFourToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goalId\": {{goalFiveId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 86.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"Average handle time reduced while maintaining compliance.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Employee Five Submit KPI For Goal Six",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeFiveToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goalId\": {{goalSixId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 89.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"First contact resolution improved for standard support cases.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Employee Five Submit KPI For Goal Seven",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employeeFiveToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goalId\": {{goalSevenId}},\n  \"targetValue\": 100.00,\n  \"actualValue\": 93.00,\n  \"period\": \"{{period}}\",\n  \"notes\": \"Internal QA compliance improved across audited support interactions.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kpis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "kpis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Manager One Get KPIs By User",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/kpis/user/{{employeeId}}",
+              "raw": "{{baseUrl}}/api/kpis/user/{{employeeOneId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -668,47 +1341,23 @@
                 "api",
                 "kpis",
                 "user",
-                "{{employeeId}}"
+                "{{employeeOneId}}"
               ]
             }
           }
         },
         {
-          "name": "Manager Get KPIs By User",
+          "name": "Manager Two Get KPIs By Goal",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerTwoToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/kpis/user/{{employeeId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "kpis",
-                "user",
-                "{{employeeId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get KPIs By Goal",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/kpis/goal/{{goalId}}",
+              "raw": "{{baseUrl}}/api/kpis/goal/{{goalFourId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -716,31 +1365,7 @@
                 "api",
                 "kpis",
                 "goal",
-                "{{goalId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Manager Get KPIs By Goal",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/kpis/goal/{{goalId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "kpis",
-                "goal",
-                "{{goalId}}"
+                "{{goalFourId}}"
               ]
             }
           }
@@ -751,14 +1376,14 @@
       "name": "Evaluations",
       "item": [
         {
-          "name": "Run Evaluation",
+          "name": "Run Evaluation For Employee One",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "const data = pm.response.json();",
-                  "pm.environment.set('evaluationId', data.id);"
+                  "pm.environment.set('evaluationOneId', data.id);"
                 ],
                 "type": "text/javascript"
               }
@@ -773,12 +1398,12 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": {{employeeId}},\n  \"period\": \"{{period}}\"\n}"
+              "raw": "{\n  \"userId\": {{employeeOneId}},\n  \"period\": \"{{period}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/evaluations",
@@ -793,40 +1418,185 @@
           }
         },
         {
-          "name": "Get Evaluation By Id",
+          "name": "Run Evaluation For Employee Two",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('evaluationTwoId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
                 "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
+                "value": "Bearer {{managerOneToken}}"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{employeeTwoId}},\n  \"period\": \"{{period}}\"\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/api/evaluations/{{evaluationId}}",
+              "raw": "{{baseUrl}}/api/evaluations",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "evaluations",
-                "{{evaluationId}}"
+                "evaluations"
               ]
             }
           }
         },
         {
-          "name": "Get Evaluations By User",
+          "name": "Run Evaluation For Employee Three",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('evaluationThreeId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerOneToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{employeeThreeId}},\n  \"period\": \"{{period}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Run Evaluation For Employee Four",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('evaluationFourId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerTwoToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{employeeFourId}},\n  \"period\": \"{{period}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Run Evaluation For Employee Five",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.environment.set('evaluationFiveId', data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerTwoToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{employeeFiveId}},\n  \"period\": \"{{period}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Employee One Get Own Evaluations",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{employeeToken}}"
+                "value": "Bearer {{employeeOneToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/evaluations/user/{{employeeId}}",
+              "raw": "{{baseUrl}}/api/evaluations/user/{{employeeOneId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -834,30 +1604,30 @@
                 "api",
                 "evaluations",
                 "user",
-                "{{employeeId}}"
+                "{{employeeOneId}}"
               ]
             }
           }
         },
         {
-          "name": "Download Scorecard PDF",
+          "name": "Manager Two Download Employee Four Scorecard",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{managerToken}}"
+                "value": "Bearer {{managerTwoToken}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/evaluations/{{evaluationId}}/scorecard",
+              "raw": "{{baseUrl}}/api/evaluations/{{evaluationFourId}}/scorecard",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "evaluations",
-                "{{evaluationId}}",
+                "{{evaluationFourId}}",
                 "scorecard"
               ]
             }
@@ -869,29 +1639,17 @@
       "name": "Audit",
       "item": [
         {
-          "name": "Get Audit By User",
+          "name": "Admin Get Audit By Action",
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/audit/user/{{employeeId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "audit",
-                "user",
-                "{{employeeId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Audit By Action",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/audit/action/EVALUATION_RUN",
+              "raw": "{{baseUrl}}/api/audit/action/USER_REGISTERED",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -899,7 +1657,7 @@
                 "api",
                 "audit",
                 "action",
-                "EVALUATION_RUN"
+                "USER_REGISTERED"
               ]
             }
           }
